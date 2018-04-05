@@ -1,0 +1,15 @@
+{
+  "name": "smart-order",
+  "version": "0.0.1",
+  "description": "Smart-Order",
+  "keywords": [
+	"ethereum",
+	"healthcare"
+  ],
+  "scripts": {
+	"postinstall": "cd core-contract && npm install"
+  },
+  "authors": [
+	"Jules Lainé <jules.laine@gmail.com>"
+  ]
+}

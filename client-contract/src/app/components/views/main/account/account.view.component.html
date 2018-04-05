@@ -1,0 +1,36 @@
+<div class="account-view">
+  <div class="box">
+    <form [formGroup]="formGroup" novalidate>
+      <div class="field">
+        <label class="label">From</label>
+        <div class="control">
+          <div class="select">
+            <select formControlName="from">
+              <option *ngFor="let account of accounts" value="{{ account }}">{{ account }}</option>
+            </select>
+          </div>
+        </div>
+        <p class="help">Balance : {{ getAccountBalance(0) }} wei</p>
+      </div>
+
+      <div class="field">
+        <label class="label">To</label>
+        <div class="control">
+          <input formControlName="to" class="input"/>
+        </div>
+        <p class="help">Balance : {{ getAccountBalance(1) }} wei</p>
+      </div>
+
+      <div class="field">
+        <label class="label">Amount</label>
+        <div class="control">
+          <input formControlName="amount" class="input" type="number">
+        </div>
+      </div>
+
+      <div class="control">
+        <button class="button is-primary">Send</button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,9 @@
+<div class="event-view">
+    <div class="box">
+      <h1 class="title">Events</h1>
+      <hr/>
+      <p *ngFor="let event of getEvents()">
+        {{ getHTML(event) }}
+      </p>
+    </div>
+</div>
