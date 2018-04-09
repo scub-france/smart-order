@@ -90,6 +90,10 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
         LogIssuanceQuery(queryId, block.number);
     }
 
+    function smartOrder_getPrice() returns (uint) {
+        return oraclize_getPrice("URL");
+    }
+
     function deliver(bytes32 _id, bytes _sigPharmacist, bytes _sigRecipient, uint[] _deltas)
     payable external whenNotPaused {
 

@@ -18,43 +18,111 @@ walletRecipient.provider = provider;
 var walletPharmacist = new ethers.Wallet('0x388c684f0ba1ef5017716adb5d21a053ea8e90277d0868337519f97bede61418');  // 4
 walletPharmacist.provider = provider;
 
+
 contract('SmartOrder', accounts => {
 
-    it("should be deployed", () => {
-        return SmartOrder.deployed().then(function (instance) {
-            instance.LogIssuanceQuery().watch(function(err, data) {
-                console.log("LogIssuanceQuery");
-                console.log(data.args);
-            });
+    describe('hooks', function () {
 
-            instance.LogIssuance().watch(function(err, data) {
-                console.log("LogIssuance");
-                console.log(data.args);
-            });
+        let filters;
+        afterEach(function () {
+            if (filters) {
+                console.log('clearing ' + filters.length + ' filters...');
+                filters.forEach((filter) => {
+                    filter.stopWatching();
+                });
+            }
+        });
 
-            instance.LogFailedIssuance().watch(function(err, data) {
-                console.log("LogFailedIssuance");
-                console.log(data.args);
+
+        it('should be deployed', (done) => {
+            filters = [];
+
+            SmartOrder.deployed().then(() => {
+                done();
             });
         });
-    });
 
-    it("should issue an order query", () => {
-        return SmartOrder.deployed().then(instance => {
-            return new ethers.Contract(instance.address, instance.abi, wallet);
-        }).then(contract => {
-            var _issuer = walletIssuer.address;
-            var _recipient = walletRecipient.address;
-            var _prescriptions = [["5-hydroxytryptamine", "1", "mg"], ["4-(2-aminoéthyl)benzène-1,2-diol", "2", "g"]];
-            var _validity = 0;
+        it('should issue an order query', (done) => {
+            filters = [];
 
-            // TODO: add _prescriptions to commitment (won't work with web3 sign) 
-            var commitment = ethers.utils.solidityKeccak256(['address', 'address', 'uint'], [walletIssuer.address, walletRecipient.address, _validity]);
-            var _sigIssuer = web3.eth.sign(walletIssuer.address, commitment);
-            var _sigRecipient = web3.eth.sign(walletRecipient.address, commitment);
+            SmartOrder.deployed().then(instance => {
+                let contract = new ethers.Contract(instance.address, instance.abi, wallet);
+                var _issuer = walletIssuer.address;
+                var _recipient = walletRecipient.address;
+                var _prescriptions = [['5-hydroxytryptamine', '1', 'mg'], ['4-(2-aminoéthyl)benzène-1,2-diol', '2', 'g']];
+                var _validity = 0;
 
-            return contract.functions.issueOrder(_issuer, _recipient, _prescriptions, _validity,  _sigIssuer,  _sigRecipient, {value: 10000});
+                // TODO: add _prescriptions to commitment (won't work with web3 sign)
+                var commitment = ethers.utils.solidityKeccak256(['address', 'address', 'uint'], [walletIssuer.address, walletRecipient.address, _validity]);
+                var _sigIssuer = web3.eth.sign(walletIssuer.address, commitment);
+                var _sigRecipient = web3.eth.sign(walletRecipient.address, commitment);
+
+                instance.smartOrder_getPrice.call().then((value) => {
+                    contract.functions.issueOrder(_issuer, _recipient, _prescriptions, _validity, _sigIssuer, _sigRecipient, {value: value.add(1).toNumber()});
+                });
+
+                let logIssuanceQuery = instance.LogIssuanceQuery();
+                let logIssuance = instance.LogIssuance();
+                let logFailedIssuance = instance.LogFailedIssuance();
+                filters.push(logIssuanceQuery, logIssuance, logFailedIssuance);
+
+                logIssuanceQuery.watch(function (err, data) {
+                    console.log('LogIssuanceQuery : ' + data.args.queryId);
+                    logIssuance.watch(function (err, data) {
+                        console.log('LogIssuance : ' + data.args.queryId);
+                        done();
+                    });
+                });
+
+                logFailedIssuance.watch(function (err, data) {
+                    console.log('LogFailedIssuance : ' + data.args.queryId);
+                    done(new Error('Log Failed issuance must not be called'));
+                });
+
+            });
         });
+
+
+        it('should issue an order query', (done) => {
+            filters = [];
+
+            SmartOrder.deployed().then(instance => {
+                let contract = new ethers.Contract(instance.address, instance.abi, wallet);
+                var _issuer = walletIssuer.address;
+                var _recipient = walletRecipient.address;
+                var _prescriptions = [['5-hydroxytryptamine', '1', 'mg'], ['4-(2-aminoéthyl)benzène-1,2-diol', '2', 'g']];
+                var _validity = 0;
+
+                // TODO: add _prescriptions to commitment (won't work with web3 sign)
+                var commitment = ethers.utils.solidityKeccak256(['address', 'address', 'uint'], [walletIssuer.address, walletRecipient.address, _validity]);
+                var _sigIssuer = web3.eth.sign(walletIssuer.address, commitment);
+                var _sigRecipient = web3.eth.sign(walletRecipient.address, commitment);
+
+                instance.smartOrder_getPrice.call().then((value) => {
+                    contract.functions.issueOrder(_issuer, _recipient, _prescriptions, _validity, _sigIssuer, _sigRecipient, {value: value.add(1).toNumber()});
+                });
+
+                let logIssuanceQuery = instance.LogIssuanceQuery();
+                let logIssuance = instance.LogIssuance();
+                let logFailedIssuance = instance.LogFailedIssuance();
+                filters.push(logIssuanceQuery, logIssuance, logFailedIssuance);
+
+                logIssuanceQuery.watch(function (err, data) {
+                    console.log('LogIssuanceQuery : ' + data.args.queryId);
+                    logIssuance.watch(function (err, data) {
+                        console.log('LogIssuance : ' + data.args.queryId);
+                        done();
+                    });
+                });
+
+                logFailedIssuance.watch(function (err, data) {
+                    console.log('LogFailedIssuance : ' + data.args.queryId);
+                    done(new Error('Log Failed issuance must not be called'));
+                });
+
+            });
+        });
+
     });
 
 });
