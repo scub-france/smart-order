@@ -1,0 +1,12 @@
+<nav class="navbar navbar is-light" role="navigation" aria-label="dropdown navigation">
+  <div class="container">
+    <div class="navbar-menu">
+      <a class="navbar-item" [routerLinkActive]="['active']"  [routerLink]="['/']">About</a>
+      <a class="navbar-item" [routerLinkActive]="['active']"  [routerLink]="['/doctor']">Doctor</a>
+      <a class="navbar-item" [routerLinkActive]="['active']"  [routerLink]="['/pharmacist']">Pharmacist</a>
+      <a class="navbar-item" [routerLinkActive]="['active']"  [routerLink]="['/patient']">Patient</a>
+    </div>
+  </div>
+</nav>
+
+<router-outlet></router-outlet>
