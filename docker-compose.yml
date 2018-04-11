@@ -1,0 +1,20 @@
+version: '3.2'
+services:
+  core-contract:
+    build: ./core-contract
+    volumes:
+      - ./core-contract:/usr/src/app
+    ports:
+      - "8546:8545"
+  ethereum-bridge:
+    build: ./ethereum-bridge
+    volumes:
+      - ./ethereum-bridge/startup:/usr/src/startup
+    environment:
+      - ETHEREUM_BRIDGE_COMMIT=9c40a36
+    command: ["/usr/src/startup/wait-for-it.sh",
+     "core-contract", "8545",
+      "node /usr/src/app/ethereum-bridge/bridge -H core-contract:8545 -a 1"]
+    depends_on:
+      - "core-contract"
+
