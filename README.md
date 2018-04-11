@@ -8,21 +8,30 @@ The documentation can be found [here](https://github.com/scub-france/smart-order
 ### Truffle Suite
 [Truffle](https://github.com/trufflesuite/truffle) is a development environment, testing framework and asset pipeline for Ethereum, aiming to make life as an Ethereum developer easier.
 
-### Ethereum Bridge (Oraclize connector)
+### Ethereum Bridge
 [Ethereum-Bridge](https://github.com/oraclize/ethereum-bridge), which allows any non-public blockchain instance to interact with the Oraclize service.
 
 Given that the contracts rely on Oraclize, it is necessary to have a connector node running and deployed on a blockchain to test contracts, or interact with them with the angular interface.
 
+### Angular-cli
+[Angular cli](https://cli.angular.io/) is a command line interface for Angular.
+
+You're also going to need a working copy of angular-cli (aka. ng) installed in your environment (`npm install -g @angular/cli`).
+
 ## How to run
+### Docker
+If you are not a developer and only want to see this demo in action, you may want to use the docker images.
+
+### Manual setup
 1. Fetch the codebase :  `git clone https://github.com/scub-france/smart-order`
 2. Compile & deploy contracts (cf. core-contract's [README](./core-contract/README.md)).
 3. Run the oraclize connector (cf. Ethereum Bridge) 
-4. Run client-contract (cf. client-contract's [README](./client-contract/README.md))
+4. Run  (cf. client-demo's [README](client-demo/README.md))
 
 ## smart-order/core-contract
 This module contains all the files related to the smart contracts.
 
-## smart-order/client-contract
+## smart-order/client-demo
 This module contains a webpack angular application providing a user-frienldy interface with the contracts.
 
 ## Contribute

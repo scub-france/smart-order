@@ -4,7 +4,8 @@ introduction
 
 ## How to use
 ### Part 1 : Setting up
-1. `npm install`
+1. `cd core-contract`
+2. `npm install`
 
 ### Part 2 : Smart-contracts
 Open a new console and type `truffle develop` to open a truffle invite & setup a local development blockchain network.
@@ -20,5 +21,4 @@ You can use `--reset` in case of contract update to force recompilation.
 
 
 ## Technologies & Languages
-1. Angular4 (Typescript/Javascript)
-2. Truffle (Solidity)
+1. Truffle (Solidity)
