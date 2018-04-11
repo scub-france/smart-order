@@ -1,0 +1,12 @@
+{
+  "PUBKEYTEST1-D":{
+    "isValid" : "false",
+    "name" : "Pastureau",
+    "surname" : "Frédéric"
+  },
+  "PUBKEYTEST2-D":{
+    "isValid" : "true",
+    "name" : "Hippocrate",
+    "surname" : "De Cos"
+  }
+}
