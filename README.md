@@ -22,17 +22,15 @@ You're also going to need a working copy of angular-cli (aka. ng) installed in y
 ### Docker
 If you are not a developer and only want to see this demo in action, you may want to use the docker images.
 
+Using `docker-compose up`, you can launch a functional environment containing the deployed core-contract and ethereum bridge.
+
 ### Manual setup
 1. Fetch the codebase :  `git clone https://github.com/scub-france/smart-order`
 2. Compile & deploy contracts (cf. core-contract's [README](./core-contract/README.md)).
 3. Run the oraclize connector (cf. Ethereum Bridge) 
-4. Run  (cf. client-demo's [README](client-demo/README.md))
 
 ## smart-order/core-contract
 This module contains all the files related to the smart contracts.
-
-## smart-order/client-demo
-This module contains a webpack angular application providing a user-frienldy interface with the contracts.
 
 ## Contribute
 Contributions are always welcome & encouraged! :smile: If you'd like to contribute, please see [Contributing Guidelines](./CONTRIBUTING.md).
