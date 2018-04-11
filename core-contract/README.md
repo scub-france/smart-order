@@ -16,8 +16,7 @@ Then in the truffle console you'll be able to execute the following commands :
 You can use `--reset` in case of contract update to force recompilation.
 
 ## Running unit tests
-1. Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-2. Run `truffle test` to run tests associated with your solidity smart contracts. The test folder for this can be found in the `test` directory at the root level of this project
+Run `truffle test` to run tests associated with your solidity smart contracts. The test folder for this can be found in the `test` directory at the root level of this project
 
 
 ## Technologies & Languages
