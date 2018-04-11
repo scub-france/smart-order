@@ -3,15 +3,17 @@
   "version": "0.0.1",
   "description": "Smart-Order contracts",
   "keywords": [
-	"ethereum",
-	"healthcare"
+    "ethereum",
+    "healthcare"
   ],
   "authors": [
-	"Jules Lainé <jules.laine@gmail.com>"
+    "Jules Lainé <jules.laine@gmail.com>",
+    "Louis Torbay <louistorbay@gmail.com>",
+    "Pier-Jean Malandrino <pjmalandrino@gmail.com>"
   ],
   "devDependencies": {
-	"truffle": "^4.1.3",
-	"zeppelin-solidity": "1.7.0",
-	"ethers": "^3.0.8"
+    "truffle": "^4.1.3",
+    "zeppelin-solidity": "1.7.0",
+    "ethers": "^3.0.8"
   }
 }

@@ -10,6 +10,8 @@
 	"postinstall": "cd core-contract && npm install"
   },
   "authors": [
-	"Jules Lainé <jules.laine@gmail.com>"
+	"Jules Lainé <jules.laine@gmail.com>",
+    "Louis Torbay <louistorbay@gmail.com",
+    "Pier-Jean Malandrino <pjmalandrino@gmail.com>"
   ]
 }
