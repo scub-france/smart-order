@@ -1,0 +1,12 @@
+{
+  "PUBKEYTEST1-P":{
+    "isValid" : "false",
+    "name" : "Balard",
+    "surname" : "Antoine-Jérôme"
+  },
+  "PUBKEYTEST2-P":{
+    "isValid" : "true",
+    "name" : "Limousin",
+    "surname" : "Stanislas"
+  }
+}
