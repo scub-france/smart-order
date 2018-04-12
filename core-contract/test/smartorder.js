@@ -6,7 +6,14 @@ var ethers = require('ethers');
 
 // Using 1st account of truffle develop
 var wallet = new ethers.Wallet('0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3');
-var provider = new ethers.providers.JsonRpcProvider("http://localhost:9545");
+
+let ethereum_provider;
+if (process.env.ETHEREUM_PROVIDER) {
+    ethereum_provider = process.env.ETHEREUM_PROVIDER;
+} else {
+    ethereum_provider = "http://localhost:9545";
+}
+var provider = new ethers.providers.JsonRpcProvider(process.env.ETHEREUM_PROVIDER);
 wallet.provider = provider;
 
 var walletIssuer = new ethers.Wallet('0x0dbbe8e4ae425a6d2687f1a7e3ba17bc98c673636790f1b8ad91193c05875ef1');      // 2
