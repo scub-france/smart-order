@@ -22,7 +22,7 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
     event LogFailedIssuance(bytes32 indexed queryId, uint block);
     event LogIssuance(bytes32 indexed queryId, uint block, address indexed issuer, address indexed recipient);
 
-    event LogDeliveryQuery(bytes32 indexed queryId, uint block, address pharmacist, uint8 version);
+    event LogDeliveryQuery(bytes32 indexed orderId, bytes32 indexed queryId, uint block, address pharmacist); //  , uint8 version
     event LogFailedDelivery(bytes32 indexed queryId, uint block);
     event LogDelivery(bytes32 indexed queryId, uint block, uint8 index, uint amount);
 
@@ -41,7 +41,6 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
         address issuer;
         address recipient;
         Prescription[] prescriptions;
-        // Delivery[] deliveries;
         uint8 version;
     }
 
@@ -54,6 +53,7 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
     // Attributes
     // *****************************************************************************************************************
     mapping(bytes32 => Order) private orders;
+    mapping(bytes32 => Delivery) private deliveries;
 
 
     // Functions
@@ -61,17 +61,18 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
     function issueOrder(address _issuer, address _recipient, string[][] _prescriptions, uint _validity, bytes _sigIssuer, bytes _sigRecipient)
     payable public whenNotPaused {
 
+        // TODO: add gas cost ?
         require(oraclize_getPrice("URL") < msg.value);
 
         // Let's verify the hash & signatures
         // TODO: add _prescriptions to commitment
+        // TODO: add issuance validity in commitment to avoid data replayability ?
         bytes32 commitment = keccak256("\x19Ethereum Signed Message:\n32", keccak256(_issuer, _recipient, _validity));
         require(ECRecovery.recover(commitment, _sigIssuer) == _issuer);
         require(ECRecovery.recover(commitment, _sigRecipient) == _recipient);
 
         // Send authentication request to Oracle
-        // bytes32 queryId = oraclize_query(10, "URL", "http://localhost:8080/v1/doctor/validate", strConcat("{ pubkey: ", toString(_issuer), " }"));
-        bytes32 queryId = oraclize_query(10, "URL", "json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0");
+        bytes32 queryId = oraclize_query(10, "URL", "json(http://localhost:8081/v1/doctor/validate).response", getOracleURLQueryParam(_issuer));
 
         // Storing Order
         // Version is set to 1 to distinguish from empty in orders mapping.
@@ -90,44 +91,45 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
         LogIssuanceQuery(queryId, block.number);
     }
 
-    function smartOrder_getPrice() returns (uint) {
-        return oraclize_getPrice("URL");
-    }
-
-    function deliver(bytes32 _id, bytes _sigPharmacist, bytes _sigRecipient, uint[] _deltas)
+    function deliver(bytes32 _orderId, bytes _sigPharmacist, bytes _sigRecipient, uint[] _deltas)
     payable external whenNotPaused {
 
         // TODO: add gas cost ?
         require(oraclize_getPrice("URL") < msg.value);
-        require(orders[_id].version >= 2);
-        require(orders[_id].validity == 0 || block.number <= SafeMath.add(orders[_id].createdAt, orders[_id].validity));
-        require(_deltas.length > 0 && _deltas.length <= orders[_id].prescriptions.length);
+
+        require(orders[_orderId].version > 1);
+        require(orders[_orderId].validity == 0 || block.number <= SafeMath.add(orders[_orderId].createdAt, orders[_orderId].validity));
+        require(_deltas.length > 0 && _deltas.length <= orders[_orderId].prescriptions.length);
 
         // Let's check for recipient agreement
-        // TODO: add version & _deltas to commitment
-        bytes32 commitment = keccak256("\x19Ethereum Signed Message:\n32", keccak256(_id, _sigPharmacist, _sigRecipient));
-        require(ECRecovery.recover(commitment, _sigRecipient) == orders[_id].recipient);
+        // TODO: add _deltas & version to commitment
+        bytes32 commitment = keccak256("\x19Ethereum Signed Message:\n32", keccak256(_orderId, _sigPharmacist, _sigRecipient));
+        require(ECRecovery.recover(commitment, _sigRecipient) == orders[_orderId].recipient);
+
+        // Bump order.version to update future commitment hash
+        orders[_orderId].version += 1;
 
         // Send authentication request to Oracle
         address adrPharmacist = ECRecovery.recover(commitment, _sigPharmacist);
-        bytes32 queryId = oraclize_query(10, "URL", "json(http://localhost:8080/v1/pharmacist/validate).response", strConcat("{ pubkey: ", toString(adrPharmacist), " }"));
+        bytes32 queryId = oraclize_query(10, "URL", "json(http://localhost:8081/v1/pharmacist/validate).response", getOracleURLQueryParam(adrPharmacist));
 
-        // TODO: Storing Delivery request
+        // Storing delivery
+        Delivery memory delivery;
+        delivery.processing = false;
+        delivery.deltas = _deltas;
 
-        LogDeliveryQuery(queryId, block.number, adrPharmacist, orders[_id].version);
-
-        // Bump order.version to update commitment hash
-        orders[_id].version += 1;
+        // TODO: add order version to log
+        LogDeliveryQuery(_orderId, queryId, block.number, adrPharmacist); // orders[_orderId].version
     }
 
     function __callback(bytes32 _oraclizeID, string _result)
-    public {
+    public whenNotPaused {
 
         require(msg.sender == oraclize_cbAddress());
 
         // Order issuance callback
         if (orders[_oraclizeID].version == 1) {
-            if (parseInt(_result) > 1) {
+            if (parseInt(_result) > 0) {
                 orders[_oraclizeID].version = 2;
                 orders[_oraclizeID].createdAt = block.number;
                 LogIssuance(_oraclizeID, block.number, orders[_oraclizeID].issuer, orders[_oraclizeID].recipient);
@@ -138,52 +140,76 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
             }
         }
 
-        // // Delivery callback
-        // else {
-        //     // TODO: check if a delivery request is pending
-        //     // problem : how to retrieve order key ??
-        //     // sol : api returns the key instead of a boolean if ok, and returns an invalid key if ko ?
+        // Delivery callback
+        else {
 
-        //     if (parseInt(_result) == 1) {
-        //         // Let's try to update order data
-        //         //                for (uint8 index = 0; index < orders[oraclizeID].data.length; index++) {
-        //         //                    uint requested = _oracleQueries[oraclizeID].data[index];
-        //         //                if (requested > _prescriptions[index].amount) {
-        //         //                    requested = _prescriptions[index].amount;
-        //         //                }
-        //         //                _prescriptions[index].amount = SafeMath.sub(_prescriptions[index].amount, requested);
-        //         //                     LogDelivery(oraclizeID, block.number, index, requested);
-        //         //                }
+            // Mutext to avoid callback reentrance
+            if(deliveries[_oraclizeID].processing == false) {
+                deliveries[_oraclizeID].processing = true;
 
-        //     }
-        //     else {
-        //         //                 LogFailedDelivery(_oraclizeID, block.number);
-        //     }
+                // Unkown pharmacist => Access should not be granted
+                if(parseInt(_result) == 0) {
+                    LogFailedDelivery(_oraclizeID, block.number);
+                }
 
-        //     //            delete deliveries[_oraclizeID];
-        // }
+                // Known pharmacist => update order data
+                else {
+                    bytes32 orderId = stringToBytes32(_result);
+                    orders[orderId].version += 1;
+                    for (uint8 index = 0; index < deliveries[_oraclizeID].deltas.length; index++) {
+                        uint requested = deliveries[_oraclizeID].deltas[index];
+                        if (requested > orders[orderId].prescriptions[index].amount) {
+                            requested = orders[orderId].prescriptions[index].amount;
+                        }
+                        orders[orderId].prescriptions[index].amount = SafeMath.sub(orders[orderId].prescriptions[index].amount, requested);
+                        LogDelivery(_oraclizeID, block.number, index, requested);
+                    }
+                }
+
+                delete deliveries[_oraclizeID];
+            }
+        }
     }
 
     // Misc
     // *****************************************************************************************************************
-    function toString(address x)
-    internal pure returns (string) {
+    function stringToBytes32(string memory source)
+    internal pure returns (bytes32 result) {
+        bytes memory tempEmptyStringTest = bytes(source);
+        if (tempEmptyStringTest.length == 0) {
+            return 0x0;
+        }
 
+        assembly {
+            result := mload(add(source, 32))
+        }
+    }
+
+    function toString(address adr)
+    internal pure returns (string) {
         bytes memory b = new bytes(20);
         for (uint i = 0; i < 20; i++)
-            b[i] = byte(uint8(uint(x) / (2 ** (8 * (19 - i)))));
+            b[i] = byte(uint8(uint(adr) / (2 ** (8 * (19 - i)))));
         return string(b);
+    }
+
+    function getOracleURLQueryParam(address pubkey)
+    internal returns (string) {
+        return strConcat('{"pubkey":"', toString(pubkey), '"}');
+    }
+
+    function getOracleQueryPrice(string _type)
+    external returns (uint) {
+        return oraclize_getPrice(_type);
     }
 
     function addFunding()
     external payable whenNotPaused {
-
         LogFunding(block.number, msg.sender, msg.value);
     }
 
     function()
     public {
-
         LogFailback(block.number, msg.sender);
     }
 
