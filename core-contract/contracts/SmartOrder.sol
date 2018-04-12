@@ -24,7 +24,7 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
 
     event LogDeliveryQuery(bytes32 indexed orderId, bytes32 indexed queryId, uint block, address pharmacist, uint8 version);
     event LogFailedDelivery(bytes32 indexed queryId, uint block);
-    event LogDelivery(bytes32 indexed queryId, uint block, uint8 index, uint amount);
+    event LogDelivery(bytes32 indexed queryId, uint8 index, uint amount);
 
     event LogStep(string msg);
 
@@ -169,7 +169,7 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
                             requested = orders[orderId].prescriptions[index].amount;
                         }
                         orders[orderId].prescriptions[index].amount = SafeMath.sub(orders[orderId].prescriptions[index].amount, requested);
-                        emit LogDelivery(_oraclizeID, block.number, index, requested);
+                        emit LogDelivery(_oraclizeID, index, requested);
                     }
                 }
 
