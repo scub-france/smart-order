@@ -5,6 +5,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:rec": "ng serve --prod --env=rec  --host 0.0.0.0 --disable-host-check --port=4200 --live-reload false ",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",

@@ -6,6 +6,7 @@ services:
       - ./core-contract:/usr/src/app
     ports:
       - "8546:8545"
+
   ethereum-bridge:
     build: ./ethereum-bridge
     volumes:
@@ -18,3 +19,11 @@ services:
     depends_on:
       - "core-contract"
 
+  client-demo:
+        build: ./client-demo
+        environment:
+          - ANGULAR_CLI_ENV=rec
+        volumes:
+          - ./client-demo:/usr/src/app
+        ports:
+          - "4200:4200"
