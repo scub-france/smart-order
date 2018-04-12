@@ -1,5 +1,5 @@
 pragma experimental ABIEncoderV2 ;
-pragma solidity ^0.4.19;
+pragma solidity ^0.4.21;
 
 // Libraries
 import "../node_modules/zeppelin-solidity/contracts/ECRecovery.sol";
@@ -22,9 +22,11 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
     event LogFailedIssuance(bytes32 indexed queryId, uint block);
     event LogIssuance(bytes32 indexed queryId, uint block, address indexed issuer, address indexed recipient);
 
-    event LogDeliveryQuery(bytes32 indexed orderId, bytes32 indexed queryId, uint block, address pharmacist); //  , uint8 version
+    event LogDeliveryQuery(bytes32 indexed orderId, bytes32 indexed queryId, uint block, address pharmacist, uint8 version);
     event LogFailedDelivery(bytes32 indexed queryId, uint block);
     event LogDelivery(bytes32 indexed queryId, uint block, uint8 index, uint amount);
+
+    event LogStep(string msg);
 
 
     // Structs
@@ -45,7 +47,8 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
     }
 
     struct Delivery {
-        bool processing;
+        bool pending;
+        bytes32 orderId;
         uint[] deltas;
     }
 
@@ -72,7 +75,8 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
         require(ECRecovery.recover(commitment, _sigRecipient) == _recipient);
 
         // Send authentication request to Oracle
-        bytes32 queryId = oraclize_query(10, "URL", "json(http://localhost:8081/v1/doctor/validate).response", getOracleURLQueryParam(_issuer));
+        // bytes32 queryId = oraclize_query(10, "URL", "json(http://localhost:8081/v1/doctor/validate).response", getOracleURLQueryParam(_issuer));
+        bytes32 queryId = oraclize_query(10, "URL", "json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0");
 
         // Storing Order
         // Version is set to 1 to distinguish from empty in orders mapping.
@@ -88,7 +92,7 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
             orders[queryId].prescriptions.push(prescription);
         }
 
-        LogIssuanceQuery(queryId, block.number);
+        emit LogIssuanceQuery(queryId, block.number);
     }
 
     function deliver(bytes32 _orderId, bytes _sigPharmacist, bytes _sigRecipient, uint[] _deltas)
@@ -103,23 +107,30 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
 
         // Let's check for recipient agreement
         // TODO: add _deltas & version to commitment
-        bytes32 commitment = keccak256("\x19Ethereum Signed Message:\n32", keccak256(_orderId, _sigPharmacist, _sigRecipient));
+        bytes32 commitment = keccak256("\x19Ethereum Signed Message:\n32", keccak256(_orderId));
         require(ECRecovery.recover(commitment, _sigRecipient) == orders[_orderId].recipient);
+
+        address adrPharmacist = ECRecovery.recover(commitment, _sigPharmacist);
+        prepareDelivery(_orderId, adrPharmacist, _deltas);
+    }
+
+    function prepareDelivery(bytes32 _orderId, address _adrPharmacist, uint[] _deltas)
+    internal {
 
         // Bump order.version to update future commitment hash
         orders[_orderId].version += 1;
 
         // Send authentication request to Oracle
-        address adrPharmacist = ECRecovery.recover(commitment, _sigPharmacist);
-        bytes32 queryId = oraclize_query(10, "URL", "json(http://localhost:8081/v1/pharmacist/validate).response", getOracleURLQueryParam(adrPharmacist));
+        // bytes32 queryId = oraclize_query(10, "URL", "json(http://localhost:8081/v1/pharmacist/validate).response", getOracleURLQueryParam(_adrPharmacist));
+        bytes32 queryId = oraclize_query(10, "URL", "json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0");
 
         // Storing delivery
-        Delivery memory delivery;
-        delivery.processing = false;
-        delivery.deltas = _deltas;
+        deliveries[queryId].orderId = _orderId;
+        deliveries[queryId].deltas = _deltas;
+        deliveries[queryId].pending = true;
 
-        // TODO: add order version to log
-        LogDeliveryQuery(_orderId, queryId, block.number, adrPharmacist); // orders[_orderId].version
+        // Log delivery query
+        emit LogDeliveryQuery(_orderId, queryId, block.number, _adrPharmacist, orders[_orderId].version);
     }
 
     function __callback(bytes32 _oraclizeID, string _result)
@@ -129,14 +140,14 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
 
         // Order issuance callback
         if (orders[_oraclizeID].version == 1) {
-            if (parseInt(_result) > 0) {
-                orders[_oraclizeID].version = 2;
-                orders[_oraclizeID].createdAt = block.number;
-                LogIssuance(_oraclizeID, block.number, orders[_oraclizeID].issuer, orders[_oraclizeID].recipient);
+            if (parseInt(_result) == 0) {
+                delete orders[_oraclizeID];
+                emit LogFailedIssuance(_oraclizeID, block.number);
             }
             else {
-                delete orders[_oraclizeID];
-                LogFailedIssuance(_oraclizeID, block.number);
+                orders[_oraclizeID].version = 2;
+                orders[_oraclizeID].createdAt = block.number;
+                emit LogIssuance(_oraclizeID, block.number, orders[_oraclizeID].issuer, orders[_oraclizeID].recipient);
             }
         }
 
@@ -144,17 +155,13 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
         else {
 
             // Mutext to avoid callback reentrance
-            if(deliveries[_oraclizeID].processing == false) {
-                deliveries[_oraclizeID].processing = true;
-
-                // Unkown pharmacist => Access should not be granted
-                if(parseInt(_result) == 0) {
-                    LogFailedDelivery(_oraclizeID, block.number);
-                }
+            if (deliveries[_oraclizeID].pending == true) {
+                deliveries[_oraclizeID].pending = false;
 
                 // Known pharmacist => update order data
-                else {
-                    bytes32 orderId = stringToBytes32(_result);
+                if (parseInt(_result) > 0) {
+
+                    bytes32 orderId = deliveries[_oraclizeID].orderId;
                     orders[orderId].version += 1;
                     for (uint8 index = 0; index < deliveries[_oraclizeID].deltas.length; index++) {
                         uint requested = deliveries[_oraclizeID].deltas[index];
@@ -162,8 +169,13 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
                             requested = orders[orderId].prescriptions[index].amount;
                         }
                         orders[orderId].prescriptions[index].amount = SafeMath.sub(orders[orderId].prescriptions[index].amount, requested);
-                        LogDelivery(_oraclizeID, block.number, index, requested);
+                        emit LogDelivery(_oraclizeID, block.number, index, requested);
                     }
+                }
+
+                // Unkown pharmacist => Access should not be granted
+                else {
+                    emit LogFailedDelivery(_oraclizeID, block.number);
                 }
 
                 delete deliveries[_oraclizeID];
@@ -173,29 +185,17 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
 
     // Misc
     // *****************************************************************************************************************
-    function stringToBytes32(string memory source)
-    internal pure returns (bytes32 result) {
-        bytes memory tempEmptyStringTest = bytes(source);
-        if (tempEmptyStringTest.length == 0) {
-            return 0x0;
-        }
-
-        assembly {
-            result := mload(add(source, 32))
-        }
-    }
-
-    function toString(address adr)
+    function toString(address _adr)
     internal pure returns (string) {
         bytes memory b = new bytes(20);
         for (uint i = 0; i < 20; i++)
-            b[i] = byte(uint8(uint(adr) / (2 ** (8 * (19 - i)))));
+            b[i] = byte(uint8(uint(_adr) / (2 ** (8 * (19 - i)))));
         return string(b);
     }
 
-    function getOracleURLQueryParam(address pubkey)
-    internal returns (string) {
-        return strConcat('{"pubkey":"', toString(pubkey), '"}');
+    function getOracleURLQueryParam(address _pubkey)
+    internal pure returns (string) {
+        return strConcat('{"pubKey":"', toString(_pubkey), '"}');
     }
 
     function getOracleQueryPrice(string _type)
@@ -205,22 +205,21 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
 
     function addFunding()
     external payable whenNotPaused {
-        LogFunding(block.number, msg.sender, msg.value);
+        emit LogFunding(block.number, msg.sender, msg.value);
     }
 
     function()
     public {
-        LogFailback(block.number, msg.sender);
+        emit LogFailback(block.number, msg.sender);
     }
 
     function SmartOrder()
     public {
-        OAR = OraclizeAddrResolverI(0x6f485c8bf6fc43ea212e93bbf8ce046c7f1cb475);
 
         // TODO: https://docs.oraclize.it/#ethereum-quick-start-custom-gas-limit-and-gas-price
         // WARNING: uncommenting oraclize_setCustomGasPrice freezes contract compilation
         // oraclize_setCustomGasPrice(4000000000 wei);
 
-        LogConstructor(block.number, owner);
+        emit LogConstructor(block.number, owner);
     }
 }
