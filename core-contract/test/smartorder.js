@@ -36,7 +36,9 @@ contract('SmartOrder', accounts => {
         it('should be deployed', (done) => {
             filters = [];
             SmartOrder.deployed().then((instance) => {
-                instance.LogStep().watch(function (err, data) {
+                let height = web3.eth.getBlock('latest').number;
+                let logStep = instance.LogStep({}, {fromBlock: height, toBlock: 'latest'});
+                logStep.watch(function (err, data) {
                     console.log('LogStep : ' + data.args.msg);
                 });
                 done();
@@ -48,11 +50,12 @@ contract('SmartOrder', accounts => {
             filters = [];
             SmartOrder.deployed().then(instance => {
                 let contract = new ethers.Contract(instance.address, instance.abi, wallet);
+                let height = web3.eth.getBlock('latest').number;
 
                 // Subscribing to events
-                let logIssuanceQuery = instance.LogIssuanceQuery();
-                let logIssuance = instance.LogIssuance();
-                let logFailedIssuance = instance.LogFailedIssuance();
+                let logIssuanceQuery = instance.LogIssuanceQuery({}, {fromBlock: height, toBlock: 'latest'});
+                let logIssuance = instance.LogIssuance({}, {fromBlock: height, toBlock: 'latest'});
+                let logFailedIssuance = instance.LogFailedIssuance({}, {fromBlock: height, toBlock: 'latest'});
                 filters.push(logIssuanceQuery, logIssuance, logFailedIssuance);
 
                 // Preparing order issuance params
@@ -93,17 +96,18 @@ contract('SmartOrder', accounts => {
         it('should make a delivery', (done) => {
             filters = [];
 
-            if(!_orderId) {
+            if (!_orderId) {
                 done(new Error('No existing orders..'));
             }
 
             SmartOrder.deployed().then(instance => {
                 let contract = new ethers.Contract(instance.address, instance.abi, wallet);
+                let height = web3.eth.getBlock('latest').number;
 
                 // Subscribing to events
-                let logDeliveryQuery = instance.LogDeliveryQuery();
-                let logDelivery = instance.LogDelivery();
-                let logFailedDelivery = instance.LogFailedDelivery();
+                let logDeliveryQuery = instance.LogDeliveryQuery({}, {fromBlock: height, toBlock: 'latest'});
+                let logDelivery = instance.LogDelivery({}, {fromBlock: height, toBlock: 'latest'});
+                let logFailedDelivery = instance.LogFailedDelivery({}, {fromBlock: height, toBlock: 'latest'});
                 filters.push(logDeliveryQuery, logDelivery, logFailedDelivery);
 
                 // Preparing order issuance params
@@ -120,9 +124,12 @@ contract('SmartOrder', accounts => {
                 // Waiting for events from contract to end this test
                 logDeliveryQuery.watch(function (err, data) {
                     console.log('LogDeliveryQuery : ' + data.args.queryId);
+                    let cpt = 0;
                     logDelivery.watch(function (err, data) {
                         console.log('LogDelivery : ' + data.args.queryId);
-                        done();
+                        if(++cpt === _deltas.length) {
+                            done();
+                        }
                     });
                 });
             });
