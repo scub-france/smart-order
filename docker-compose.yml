@@ -4,6 +4,8 @@ services:
     build: ./core-contract
     volumes:
       - ./core-contract:/usr/src/app
+    environment:
+      - ETHEREUM_PROVIDER=http://localhost:8545
     ports:
       - "8546:8545"
 
@@ -20,10 +22,10 @@ services:
       - "core-contract"
 
   client-demo:
-        build: ./client-demo
-        environment:
-          - ANGULAR_CLI_ENV=rec
-        volumes:
-          - ./client-demo:/usr/src/app
-        ports:
-          - "4200:4200"
+    build: ./client-demo
+    environment:
+      - ANGULAR_CLI_ENV=rec
+    volumes:
+      - ./client-demo:/usr/src/app
+    ports:
+      - "4200:4200"
