@@ -11,13 +11,19 @@ var SmartOrder = artifacts.require("./SmartOrder.sol");
 // c.f: https://github.com/ethereum/web3.js/issues/1241
 var ethers = require('ethers');
 
+let ethereum_provider;
+if (process.env.ETHEREUM_PROVIDER) {
+    ethereum_provider = process.env.ETHEREUM_PROVIDER;
+} else {
+    ethereum_provider = "http://localhost:9545";
+}
+var provider = new ethers.providers.JsonRpcProvider(process.env.ETHEREUM_PROVIDER);
+
 /**
  * GLOBAL VARS
  */
-
 // Account used for contract deployment
 var wallet = new ethers.Wallet('0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3');            // 0
-var provider = new ethers.providers.JsonRpcProvider("http://localhost:9545");
 wallet.provider = provider;
 
 // Account used by oraclize
