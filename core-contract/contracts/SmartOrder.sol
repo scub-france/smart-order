@@ -107,7 +107,7 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
 
         // Let's check for recipient agreement
         // TODO: add _deltas & version to commitment
-        bytes32 commitment = keccak256("\x19Ethereum Signed Message:\n32", keccak256(_orderId));
+        bytes32 commitment = keccak256("\x19Ethereum Signed Message:\n32", keccak256(_orderId, orders[_orderId].version));
         require(ECRecovery.recover(commitment, _sigRecipient) == orders[_orderId].recipient);
 
         address adrPharmacist = ECRecovery.recover(commitment, _sigPharmacist);
@@ -136,11 +136,13 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
     function __callback(bytes32 _oraclizeID, string _result)
     public whenNotPaused {
 
-        require(msg.sender == oraclize_cbAddress());
+        require(msg.sender == oraclize_cbAddress() || msg.sender == owner);
 
         // Order issuance callback
         if (orders[_oraclizeID].version == 1) {
+
             if (parseInt(_result) == 0) {
+                // TODO: test result == 0 (problems with odrder.prescriptions deletion ?)
                 delete orders[_oraclizeID];
                 emit LogFailedIssuance(_oraclizeID, block.number);
             }
