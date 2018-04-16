@@ -187,6 +187,11 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
 
     // Misc
     // *****************************************************************************************************************
+    function getOrder(bytes32 _orderId)
+    public view returns(Order) {
+        return orders[_orderId];
+    }
+
     function toString(address _adr)
     internal pure returns (string) {
         bytes memory b = new bytes(20);
