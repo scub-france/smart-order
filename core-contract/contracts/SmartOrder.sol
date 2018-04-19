@@ -47,9 +47,9 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
     }
 
     struct Delivery {
-        bool pending;
         bytes32 orderId;
         uint[] deltas;
+        bool pending;
     }
 
 
@@ -57,20 +57,25 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
     // *****************************************************************************************************************
     mapping(bytes32 => Order) private orders;
     mapping(bytes32 => Delivery) private deliveries;
-
+    mapping(bytes32 => bool) private knownOrders;
 
     // Functions
     // *****************************************************************************************************************
     function issueOrder(address _issuer, address _recipient, string[][] _prescriptions, uint _validity, bytes _sigIssuer, bytes _sigRecipient)
     payable public whenNotPaused {
 
-        // TODO: add gas cost ?
         require(oraclize_getPrice("URL") < msg.value);
 
-        // Let's verify the hash & signatures
-        // TODO: add _prescriptions to commitment
-        // TODO: add issuance validity in commitment to avoid data replayability ?
-        bytes32 commitment = keccak256("\x19Ethereum Signed Message:\n32", keccak256(_issuer, _recipient, _validity));
+        // Let's verify commitment hash & signatures
+        bytes32 commitment = keccak256("\x19Ethereum Signed Message:\n32", keccak256(_issuer, _recipient));
+
+        // Avoid transaction data replayability
+        // Note : issuer and recipient should both generate a new address for each order,
+        // so this "thin" commitment should not restrain usability.
+        require(knownOrders[commitment] == false);
+        knownOrders[commitment] = true;
+
+        // Ensure validity of signatures
         require(ECRecovery.recover(commitment, _sigIssuer) == _issuer);
         require(ECRecovery.recover(commitment, _sigRecipient) == _recipient);
 
@@ -98,15 +103,12 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
     function deliver(bytes32 _orderId, bytes _sigPharmacist, bytes _sigRecipient, uint[] _deltas)
     payable external whenNotPaused {
 
-        // TODO: add gas cost ?
         require(oraclize_getPrice("URL") < msg.value);
-
         require(orders[_orderId].version > 1);
-        require(orders[_orderId].validity == 0 || block.number <= SafeMath.add(orders[_orderId].createdAt, orders[_orderId].validity));
+        require(orders[_orderId].validity == 0 || block.timestamp <= orders[_orderId].validity);
         require(_deltas.length > 0 && _deltas.length <= orders[_orderId].prescriptions.length);
 
         // Let's check for recipient agreement
-        // TODO: add _deltas & version to commitment
         bytes32 commitment = keccak256("\x19Ethereum Signed Message:\n32", keccak256(_orderId, orders[_orderId].version));
         require(ECRecovery.recover(commitment, _sigRecipient) == orders[_orderId].recipient);
 
@@ -164,7 +166,6 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
                 if (parseInt(_result) > 0) {
 
                     bytes32 orderId = deliveries[_oraclizeID].orderId;
-                    orders[orderId].version += 1;
                     for (uint8 index = 0; index < deliveries[_oraclizeID].deltas.length; index++) {
                         uint requested = deliveries[_oraclizeID].deltas[index];
                         if (requested > orders[orderId].prescriptions[index].amount) {

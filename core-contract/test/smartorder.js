@@ -56,8 +56,7 @@ function getValidOrderObject() {
         validity: 0
     };
 
-    // TODO: add _prescriptions to commitment (won't work with web3 sign)
-    const commitment = ethers.utils.solidityKeccak256(['address', 'address', 'uint'], [order.issuer, order.recipient, order.validity]);
+    const commitment = ethers.utils.solidityKeccak256(['address', 'address'], [order.issuer, order.recipient]);
     order.sigIssuer = web3.eth.sign(walletIssuer.address, commitment);
     order.sigRecipient = web3.eth.sign(walletRecipient.address, commitment);
     return order;
@@ -140,7 +139,7 @@ contract('SmartOrder', accounts => {
 
             // Signing commitment with wrong key
             const order = getValidOrderObject();
-            const commitment = ethers.utils.solidityKeccak256(['address', 'address', 'uint'], [order.issuer, order.recipient, order.validity]);
+            const commitment = ethers.utils.solidityKeccak256(['address', 'address'], [order.issuer, order.recipient]);
             order.sigIssuer = web3.eth.sign(walletUnknown.address, commitment);
 
             // Calling contract function
@@ -179,7 +178,7 @@ contract('SmartOrder', accounts => {
 
             // Signing commitment with wrong key
             const order = getValidOrderObject();
-            const commitment = ethers.utils.solidityKeccak256(['address', 'address', 'uint'], [order.issuer, order.recipient, order.validity]);
+            const commitment = ethers.utils.solidityKeccak256(['address', 'address'], [order.issuer, order.recipient]);
             order.sigRecipient = web3.eth.sign(walletUnknown.address, commitment);
 
             // Calling contract function
@@ -283,6 +282,20 @@ contract('SmartOrder', accounts => {
             const order = getValidOrderObject();
             web3Interface.getOracleQueryPrice.call("URL").then(value => {
                 ethersInterface.functions.issueOrder(order.issuer, order.recipient, order.prescriptions, order.validity, order.sigIssuer, order.sigRecipient, {value: value.add(1).toNumber()});
+            });
+        });
+
+        it('should reject issuance because of transaction data replay', next => {
+            const order = getValidOrderObject();
+            web3Interface.getOracleQueryPrice.call("URL").then(value => {
+                ethersInterface.functions
+                    .issueOrder(order.issuer, order.recipient, order.prescriptions, order.validity, order.sigIssuer, order.sigRecipient, {value: value.add(1).toNumber()})
+                    .then(res => {
+                        next(new Error('This transaction should have been rejected'));
+                    })
+                    .catch(err => {
+                        next();
+                    });
             });
         });
 
