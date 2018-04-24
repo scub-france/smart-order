@@ -18,7 +18,7 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
     event LogFailback(uint block, address sender);
     event LogFunding(uint block, address sender, uint value);
 
-    event LogIssuanceQuery(bytes32 indexed queryId, uint block);
+    event LogIssuanceQuery(bytes32 indexed queryId, address indexed issuer, address indexed recipient, uint block);
     event LogFailedIssuance(bytes32 indexed queryId, uint block);
     event LogIssuance(bytes32 indexed queryId, uint block, address indexed issuer, address indexed recipient);
 
@@ -97,7 +97,7 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
             orders[queryId].prescriptions.push(prescription);
         }
 
-        emit LogIssuanceQuery(queryId, block.number);
+        emit LogIssuanceQuery(queryId, _issuer, _recipient, block.number);
     }
 
     function deliver(bytes32 _orderId, bytes _sigPharmacist, bytes _sigRecipient, uint[] _deltas)
