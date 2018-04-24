@@ -123,12 +123,8 @@ contract('SmartOrder', accounts => {
             web3Interface.getOracleQueryPrice.call("URL").then(value => {
                 ethersInterface.functions
                     .issueOrder(order.issuer, order.recipient, order.prescriptions, order.validity, order.sigIssuer, order.sigRecipient, {value: value.add(1).toNumber()})
-                    .then(res => {
-                        next(new Error('EVM did not revert..'));
-                    })
-                    .catch(err => {
-                        next();
-                    });
+                    .then(res => next(new Error('EVM did not revert..')))
+                    .catch(err => next());
             });
         });
 
@@ -146,12 +142,8 @@ contract('SmartOrder', accounts => {
             web3Interface.getOracleQueryPrice.call("URL").then(value => {
                 ethersInterface.functions
                     .issueOrder(order.issuer, order.recipient, order.prescriptions, order.validity, order.sigIssuer, order.sigRecipient, {value: value.add(1).toNumber()})
-                    .then(res => {
-                        next(new Error('EVM did not revert..'));
-                    })
-                    .catch(err => {
-                        next();
-                    });
+                    .then(res => next(new Error('EVM did not revert..')))
+                    .catch(err => next());
             });
         });
 
@@ -165,12 +157,8 @@ contract('SmartOrder', accounts => {
             web3Interface.getOracleQueryPrice.call("URL").then(value => {
                 ethersInterface.functions
                     .issueOrder(order.issuer, order.recipient, order.prescriptions, order.validity, order.sigIssuer, order.sigRecipient, {value: value.add(1).toNumber()})
-                    .then(res => {
-                        next(new Error('EVM did not revert..'));
-                    })
-                    .catch(err => {
-                        next();
-                    });
+                    .then(res => next(new Error('EVM did not revert..')))
+                    .catch(err => next());
             });
         });
 
@@ -185,12 +173,8 @@ contract('SmartOrder', accounts => {
             web3Interface.getOracleQueryPrice.call("URL").then(value => {
                 ethersInterface.functions
                     .issueOrder(order.issuer, order.recipient, order.prescriptions, order.validity, order.sigIssuer, order.sigRecipient, {value: value.add(1).toNumber()})
-                    .then(res => {
-                        next(new Error('EVM did not revert..'));
-                    })
-                    .catch(err => {
-                        next();
-                    });
+                    .then(res => next(new Error('EVM did not revert..')))
+                    .catch(err => next());
             });
         });
 
@@ -200,12 +184,8 @@ contract('SmartOrder', accounts => {
             const order = getValidOrderObject();
             ethersInterface.functions
                 .issueOrder(order.issuer, order.recipient, order.prescriptions, order.validity, order.sigIssuer, order.sigRecipient)
-                .then(res => {
-                    next(new Error('This transaction should have been rejected'));
-                })
-                .catch(err => {
-                    next();
-                });
+                .then(res => next(new Error('This transaction should have been rejected')))
+                .catch(err => next());
         });
 
         // TODO: unmock api and uncomment this test
@@ -290,12 +270,8 @@ contract('SmartOrder', accounts => {
             web3Interface.getOracleQueryPrice.call("URL").then(value => {
                 ethersInterface.functions
                     .issueOrder(order.issuer, order.recipient, order.prescriptions, order.validity, order.sigIssuer, order.sigRecipient, {value: value.add(1).toNumber()})
-                    .then(res => {
-                        next(new Error('This transaction should have been rejected'));
-                    })
-                    .catch(err => {
-                        next();
-                    });
+                    .then(res => next(new Error('This transaction should have been rejected')))
+                    .catch(err => next());
             });
         });
 
@@ -313,20 +289,17 @@ contract('SmartOrder', accounts => {
             ethersInterface.functions.getOrder(_orderId).then(order => {
 
                 // Preparing order issuance params with wrong version
-                const commitment = ethers.utils.solidityKeccak256(['bytes32', 'uint8'], [_orderId, order.version-1]);
+                const commitment = ethers.utils.solidityKeccak256(['bytes32', 'uint8'], [_orderId, order.version - 1]);
                 const _sigPharmacist = web3.eth.sign(walletPharmacist.address, commitment);
                 const _sigRecipient = web3.eth.sign(walletRecipient.address, commitment);
                 const _deltas = [1, 1];
 
                 // Calling contract function
                 web3Interface.getOracleQueryPrice.call("URL").then(value => {
-                    ethersInterface.functions.deliver(_orderId, _sigPharmacist, _sigRecipient, _deltas, {value: value.add(1).toNumber()})
-                        .then(res => {
-                            next(new Error('This transaction should have been rejected'));
-                        })
-                        .catch(err => {
-                            next();
-                        });
+                    ethersInterface.functions
+                        .deliver(_orderId, _sigPharmacist, _sigRecipient, _deltas, {value: value.add(1).toNumber()})
+                        .then(res => next(new Error('This transaction should have been rejected')))
+                        .catch(err => next());
                 });
             })
         });
@@ -350,12 +323,8 @@ contract('SmartOrder', accounts => {
                 web3Interface.getOracleQueryPrice.call("URL").then(value => {
                     ethersInterface.functions
                         .deliver(_orderId, _sigPharmacist, _sigRecipient, _deltas, {value: value.add(1).toNumber()})
-                        .then(res => {
-                            next(new Error('This transaction should have been rejected'));
-                        })
-                        .catch(err => {
-                            next();
-                        });
+                        .then(res => next(new Error('This transaction should have been rejected')))
+                        .catch(err => next());
                 });
             });
         });
@@ -378,12 +347,8 @@ contract('SmartOrder', accounts => {
                 // Calling contract function
                 ethersInterface.functions
                     .deliver(_orderId, _sigPharmacist, _sigRecipient, _deltas)
-                    .then(res => {
-                        next(new Error('This transaction should have been rejected'));
-                    })
-                    .catch(err => {
-                        next();
-                    });
+                    .then(res => next(new Error('This transaction should have been rejected')))
+                    .catch(err => next());
             });
         });
 
@@ -516,12 +481,8 @@ contract('SmartOrder', accounts => {
             ethersInterface.estimate.__callback(_orderId, "1").then(value => {
                 const tmpInterface = new ethers.Contract(web3Interface.address, web3Interface.abi, walletUnknown);
                 tmpInterface.functions.__callback(_orderId, "1", {value: value.add(1).toNumber()})
-                    .then(res => {
-                        next(new Error('This transaction should have been rejected'));
-                    })
-                    .catch(err => {
-                        next();
-                    });
+                    .then(res => next(new Error('This transaction should have been rejected')))
+                    .catch(err => next());
             });
         });
 

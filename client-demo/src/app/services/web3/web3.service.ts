@@ -3,35 +3,32 @@ import { Observable } from 'rxjs/Observable';
 import { environment } from '../../../environments/environment';
 
 const Web3 = require('web3');
-
-declare var window: any;
+const Ethers = require('ethers');
 
 @Injectable()
 export class Web3Service {
 
   public web3: any;
+  public ethers: any;
+  public wallet: any;
 
   constructor() {
-    this.checkAndInstantiateWeb3();
+    this.web3 = new Web3(new Web3.providers.HttpProvider(environment.HttpProvider));
+
+    this.wallet = new Ethers.Wallet('0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3');
+    this.wallet.provider = new Ethers.providers.JsonRpcProvider(environment.HttpProvider);
   }
 
-  private checkAndInstantiateWeb3(): void {
-    // Checking if Web3 has been injected by the browser (Mist/MetaMask)
-    if (typeof window.web3 !== 'undefined') {
-      console.warn(
-        'Using web3 detected from external source. If you find that your accounts don\'t appear or you have 0 MetaCoin, ensure you\'ve configured that source properly. If using MetaMask, see the following link. Feel free to delete this warning. :) http://truffleframework.com/tutorials/truffle-and-metamask'
-      );
-      // Use Mist/MetaMask's provider
-      this.web3 = new Web3(window.web3.currentProvider);
-    } else {
-      console.warn(
-        'No web3 detected. Falling back to ${environment.HttpProvider}. You should remove this fallback when you deploy live, as it\'s inherently insecure. Consider switching to Metamask for development. More info here: http://truffleframework.com/tutorials/truffle-and-metamask'
-      );
-      // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
-      this.web3 = new Web3(
-        new Web3.providers.HttpProvider(environment.HttpProvider)
-      );
-    }
+  public isAddress(input: string): boolean {
+    return this.web3.isAddress(input);
+  }
+
+  public sign(address: any, data: any): any {
+    return this.web3.eth.sign(address, data);
+  }
+
+  public keccak(types: string[], values: any[]): string {
+    return Ethers.utils.solidityKeccak256(types, values);
   }
 
   public getAccounts(): Observable<any> {
