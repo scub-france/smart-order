@@ -1,7 +1,6 @@
 import { BrowserModule } from "@angular/platform-browser";
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { HttpModule } from "@angular/http";
 import { AppComponent } from "./app.component";
 import { Web3Service } from "./services/web3/web3.service";
 import { APP_ROUTES } from "./app.routes";
@@ -13,6 +12,12 @@ import { DoctorViewComponent } from "./components/views/main/doctor/doctor.view.
 import { PharmacistViewComponent } from "./components/views/main/pharmacist/pharmacist.view.component";
 import { PatientViewComponent } from "./components/views/main/patient/patient.view.component";
 import { AboutViewComponent } from "./components/views/main/about/about.view.component";
+import { ClipboardModule } from "ngx-clipboard";
+import { OrderService } from "./services/order/order.service";
+import { ToastrModule } from "ngx-toastr";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { KeysPipe } from "./components/common/keys.pipe";
+import { HttpClientModule } from "@angular/common/http";
 
 @NgModule({
   imports: [
@@ -20,11 +25,15 @@ import { AboutViewComponent } from "./components/views/main/about/about.view.com
     RouterModule.forRoot(APP_ROUTES),
     FormsModule,
     ReactiveFormsModule,
-    HttpModule
+    HttpClientModule,
+    ClipboardModule,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot()
   ],
   declarations: [
     AppComponent,
     MainComponent,
+    KeysPipe,
     AboutViewComponent,
     DoctorViewComponent,
     PharmacistViewComponent,
@@ -33,7 +42,8 @@ import { AboutViewComponent } from "./components/views/main/about/about.view.com
     Error403Component
   ],
   providers: [
-    Web3Service
+    Web3Service,
+    OrderService
   ],
   bootstrap: [AppComponent]
 })

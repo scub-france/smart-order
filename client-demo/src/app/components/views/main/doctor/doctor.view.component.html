@@ -3,15 +3,231 @@
     <div class="hero-body">
       <div class="container">
         <h1 class="title">Doctor</h1>
-        <h2 class="subtitle">subtitle</h2>
+        <div class="field">
+          <div class="control">
+            <div class="select is-info ">
+              <select>
+                <option>{{ getAddress() }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
-  <br>
+
+  <!-- ORDER LIST -->
   <section class="section">
     <div class="container">
-      <h1 class="title">Title</h1>
-      <h1 class="title is-4 is-info help">info</h1>
+      <div class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <h1 class="title">My Orders</h1>
+          </div>
+        </div>
+        <div class="level-right">
+          <div class="level-item" *ngIf="isNew === false">
+            <button class="button is-info" (click)="new()">New Order</button>
+          </div>
+        </div>
+      </div>
+      <div class="box">
+        <div class="field">
+          <table class="table is-striped is-narrow is-fullwidth is-bordered">
+            <thead class="has-background-white-ter">
+            <tr>
+              <th></th>
+              <th>Datetime</th>
+              <th>Recipient</th>
+              <th>Identifier</th>
+              <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let id of orders | keys">
+              <td><a class="delete"></a>TODO</td>
+              <td>TODO</td>
+              <td>{{ orders[id].recipient }}</td>
+              <td><a (click)="show(id)">{{ id }}</a></td>
+              <td *ngIf="orders[id].version === 1">Processing</td>
+              <td *ngIf="orders[id].version === 2">Issued</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
+  </section>
+
+  <!-- ORDER DETAIL -->
+  <section class="section" *ngIf="showForm === true">
+    <form [formGroup]="formGroup">
+      <div class="container">
+        <h1 class="title">{{ isNew === true ? "New Order" : "Order Details" }}</h1>
+        <div class="box">
+
+          <!-- TOP -->
+          <div class="columns">
+            <div class="column is-one-third">
+
+              <!-- ID -->
+              <div class="field is-horizontal" *ngIf="formGroup.get('id').value != null">
+                <div class="field-label">
+                  <label class="label">Id</label>
+                </div>
+                <div class="field-body">
+                  <div class="field has-addons">
+                    <p class="control">
+                      <input class="input has-background-white-ter" type="text" readonly formControlName="id">
+                    </p>
+                    <div class="control">
+                      <div class="button" ngxClipboard [cbContent]="formGroup.get('id').value">Copy</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+              <div class="field is-horizontal">
+                <div class="field-label">
+                  <label class="label">Issuer</label>
+                </div>
+                <div class="field-body">
+                  <div class="field">
+                    <p class="control">
+                      <input class="input has-background-white-ter" type="text" readonly formControlName="issuer">
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field is-horizontal">
+                <div class="field-label">
+                  <label class="label">On the</label>
+                </div>
+                <div class="field-body">
+                  <div class="field">
+                    <p class="control">
+                      <input class="input has-background-white-ter" type="text" readonly formControlName="timestamp">
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RECIPIENT -->
+            <div class="column is-one-third is-offset-one-third">
+              <div class="field is-horizontal">
+                <div class="field-label">
+                  <label class="label is-small">Recipient</label>
+                </div>
+                <div class="field-body">
+                  <div class="field">
+                    <p class="control">
+                      <input class="input" type="text" formControlName="recipient" [readonly]="!isNew" [class.has-background-white-ter]="!isNew">
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field is-horizontal">
+                <div class="field-label">
+                  <label class="label is-small">Validity</label>
+                </div>
+                <div class="field-body">
+                  <div class="field">
+                    <p class="control">
+                      <input class="input" type="text" formControlName="validity" [readonly]="!isNew" [class.has-background-white-ter]="!isNew">
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- MIDDLE -->
+          <br>
+          <div class="field">
+            <table class="table is-striped is-narrow is-hoverable is-fullwidth is-bordered">
+              <thead class="has-background-white-ter">
+              <tr>
+                <th *ngIf="isNew"></th>
+                <th>Molecule</th>
+                <th>Quantity</th>
+                <th>Unit</th>
+                <th>Dosage</th>
+              </tr>
+              </thead>
+              <tbody formArrayName="prescriptions">
+              <tr *ngFor="let rowCtl of formGroup.controls.prescriptions.controls; let iR = index" [formGroupName]="iR">
+                <td *ngIf="isNew"><a class="delete" (click)="removeItem(iR)"></a></td>
+                <td><input class="input" type="text" formControlName="designation" [readonly]="!isNew" [class.has-background-white-ter]="!isNew"></td>
+                <td><input class="input" type="number" formControlName="amount" [readonly]="!isNew" [class.has-background-white-ter]="!isNew"></td>
+                <td><input class="input" type="text" formControlName="unit" [readonly]="!isNew" [class.has-background-white-ter]="!isNew"></td>
+                <td><input class="input" type="text" formControlName="dosage" [readonly]="!isNew" [class.has-background-white-ter]="!isNew"></td>
+              </tr>
+              </tbody>
+            </table>
+            <button class="button" (click)="addItem()" *ngIf="isNew">Add item</button>
+          </div>
+
+          <!-- BOTTOM -->
+          <br>
+          <div class="columns" *ngIf="isNew">
+            <div class="column is-one-quarter">
+              <div class="field">
+                <label class="label">Fingerprint</label>
+                <div class="control">
+                  <textarea class="textarea has-background-white-ter" type="text" readonly>{{ getFingerprint() }}</textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="column is-one-quarter is-offset-one-quarter">
+              <div class="field">
+                <label class="label">Recipient signature</label>
+                <div class="control">
+                  <textarea class="textarea" type="text" formControlName="signatureRecipient" ></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="column is-one-quarter">
+              <div class="field">
+                <label class="label">Doctor signature</label>
+                <div class="control">
+                  <textarea class="textarea has-background-white-ter" type="text" formControlName="signatureIssuer" readonly></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BUTTONS -->
+          <div class="level">
+            <div class="level-left">
+              <div class="level-item" *ngIf="isNew">
+                <div class="field">
+                  <p class="control">
+                    <button class="button" (click)="sign()">Sign</button>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="level-right">
+              <div class="level-item">
+                <div class="field is-grouped">
+                  <p class="control">
+                    <button class="button is-danger" (click)="hideForm()">Close</button>
+                  </p>
+                  <p class="control" *ngIf="isNew">
+                    <button class="button is-info" (click)="submit()">Submit</button>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
   </section>
 </div>

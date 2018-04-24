@@ -3,15 +3,81 @@
     <div class="hero-body">
       <div class="container">
         <h1 class="title">Patient</h1>
-        <h2 class="subtitle">subtitle</h2>
+        <div class="field has-addons">
+          <div class="control">
+            <div class="select is-warning">
+              <select>
+                <option>{{ getAddress() }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="control">
+            <div class="button is-warning" ngxClipboard [cbContent]="getAddress()">Copy</div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
-  <br>
+
   <section class="section">
-    <div class="container">
-      <h1 class="title">Title</h1>
-      <h1 class="title is-4 is-info help">info</h1>
-    </div>
+    <form [formGroup]="formGroup">
+      <div class="container">
+        <h1 class="title">Keys</h1>
+        <div class="box">
+          <div class="columns">
+            <div class="column is-half">
+              <div class="field">
+                <label class="label">Fingerprint</label>
+                <div class="control">
+                  <textarea class="textarea" type="text" formControlName="commitment"></textarea>
+                </div>
+              </div>
+              <div class="field">
+                <p class="control">
+                  <button class="button is-warning is-pulled-right" (click)="sign()">Sign</button>
+                </p>
+              </div>
+            </div>
+
+            <div class="column is-half">
+              <div class="field">
+                <label class="label">Signature</label>
+                <div class="control">
+                  <textarea class="textarea has-background-white-ter" type="text" formControlName="signature" readonly></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
   </section>
 </div>
+
+
+<!--<div class="field has-addons">-->
+<!--<p class="control">-->
+<!--<a class="button">-->
+<!--<span class="icon is-small">-->
+<!--<i class="fas fa-align-left"></i>-->
+<!--</span>-->
+<!--<span>Left</span>-->
+<!--</a>-->
+<!--</p>-->
+<!--<p class="control">-->
+<!--<a class="button">-->
+<!--<span class="icon is-small">-->
+<!--<i class="fas fa-align-center"></i>-->
+<!--</span>-->
+<!--<span>Center</span>-->
+<!--</a>-->
+<!--</p>-->
+<!--<p class="control">-->
+<!--<a class="button">-->
+<!--<span class="icon is-small">-->
+<!--<i class="fas fa-align-right"></i>-->
+<!--</span>-->
+<!--<span>Right</span>-->
+<!--</a>-->
+<!--</p>-->
+<!--</div>-->
