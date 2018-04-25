@@ -188,42 +188,46 @@ contract('SmartOrder', accounts => {
                 .catch(err => next());
         });
 
-        // TODO: unmock api and uncomment this test
-        // it('should reject issuance because issuer is unknown', next => {
-        //
-        //     // Subscribing to events
-        //     const height = web3.eth.getBlock('latest').number;
-        //     const logIssuanceQuery = web3Interface.LogIssuanceQuery({}, {fromBlock: height, toBlock: 'latest'});
-        //     logIssuanceQuery.watch(function (err, data) {
-        //         console.log('logIssuanceQuery : ' + data.args.queryId);
-        //
-        //         const logIssuance = web3Interface.LogIssuance({queryId: data.args.queryId}, {
-        //             fromBlock: height,
-        //             toBlock: 'latest'
-        //         });
-        //
-        //         const logFailedIssuance = web3Interface.LogFailedIssuance({queryId: data.args.queryId}, {
-        //             fromBlock: height,
-        //             toBlock: 'latest'
-        //         });
-        //
-        //         filters.push(logIssuanceQuery, logIssuance, logFailedIssuance);
-        //
-        //         logIssuance.watch(function (err, data) {
-        //             next(new Error('LogIssuance must not be called'));
-        //         });
-        //
-        //         logFailedIssuance.watch(function (err, data) {
-        //             next();
-        //         });
-        //     });
-        //
-        //     // Calling contract function
-        //     const order = getValidOrderObject();
-        //     web3Interface.getOracleQueryPrice.call("URL").then(value => {
-        //         ethersInterface.functions.issueOrder(order.issuer, order.recipient, order.prescriptions, order.validity, order.sigIssuer, order.sigRecipient, {value: value.add(1).toNumber()});
-        //     });
-        // });
+        it('should reject issuance because issuer is unknown', next => {
+
+            // Subscribing to events
+            const height = web3.eth.getBlock('latest').number;
+            const logIssuanceQuery = web3Interface.LogIssuanceQuery({}, {fromBlock: height, toBlock: 'latest'});
+            logIssuanceQuery.watch(function (err, data) {
+                console.log('logIssuanceQuery : ' + data.args.queryId);
+
+                const logIssuance = web3Interface.LogIssuance({queryId: data.args.queryId}, {
+                    fromBlock: height,
+                    toBlock: 'latest'
+                });
+
+                const logFailedIssuance = web3Interface.LogFailedIssuance({queryId: data.args.queryId}, {
+                    fromBlock: height,
+                    toBlock: 'latest'
+                });
+
+                filters.push(logIssuanceQuery, logIssuance, logFailedIssuance);
+
+                logIssuance.watch(function (err, data) {
+                    next(new Error('LogIssuance must not be called'));
+                });
+
+                logFailedIssuance.watch(function (err, data) {
+                    next();
+                });
+            });
+
+            // Calling contract function
+            const order = getValidOrderObject();
+            order.issuer = walletUnknown.address;
+            const commitment = ethers.utils.solidityKeccak256(['address', 'address'], [order.issuer, order.recipient]);
+            order.sigIssuer = web3.eth.sign(walletUnknown.address, commitment);
+            order.sigRecipient = web3.eth.sign(walletRecipient.address, commitment);
+
+            web3Interface.getOracleQueryPrice.call("URL").then(value => {
+                ethersInterface.functions.issueOrder(order.issuer, order.recipient, order.prescriptions, order.validity, order.sigIssuer, order.sigRecipient, {value: value.add(1).toNumber()});
+            });
+        });
 
         let _orderId;
         it('should issue an order', next => {
@@ -352,61 +356,60 @@ contract('SmartOrder', accounts => {
             });
         });
 
-        // TODO: unmock api and uncomment this test
-        // it('should reject delivery because pharmacist is unknown', next => {
-        //
-        //     if (!_orderId) {
-        //         next(new Error('No existing orders..'));
-        //     }
-        //
-        //     // Get current version for Order
-        //     ethersInterface.functions.getOrder(_orderId).then(order => {
-        //
-        //         // Preparing order issuance params
-        //         const commitment = ethers.utils.solidityKeccak256(['bytes32', 'uint8'], [_orderId, 2]);
-        //         const _sigPharmacist = web3.eth.sign(walletPharmacist.address, commitment);
-        //         const _sigRecipient = web3.eth.sign(walletRecipient.address, commitment);
-        //         const _deltas = [2, 0];
-        //
-        //         // Subscribing to events
-        //         const height = web3.eth.getBlock('latest').number;
-        //         const logDeliveryQuery = web3Interface.LogDeliveryQuery({orderId: _orderId}, {
-        //             fromBlock: height,
-        //             toBlock: 'latest'
-        //         });
-        //
-        //         logDeliveryQuery.watch(function (err, data) {
-        //             console.log('LogDeliveryQuery : ' + data.args.queryId);
-        //
-        //             const logDelivery = web3Interface.LogDelivery({queryId: data.args.queryId}, {
-        //                 fromBlock: height,
-        //                 toBlock: 'latest'
-        //             });
-        //
-        //             const logFailedDelivery = web3Interface.LogFailedDelivery({queryId: data.args.queryId}, {
-        //                 fromBlock: height,
-        //                 toBlock: 'latest'
-        //             });
-        //
-        //             filters.push(logDeliveryQuery, logDelivery, logFailedDelivery);
-        //
-        //             // Waiting for events from contract to end this test
-        //             logDelivery.watch(function (err, data) {
-        //                 next(new Error('LogDelivery should not be called'));
-        //             });
-        //
-        //             logFailedDelivery.watch(function (err, data) {
-        //                 next();
-        //             });
-        //         });
-        //
-        //         // Calling contract function
-        //         web3Interface.getOracleQueryPrice.call("URL").then(value => {
-        //             ethersInterface.functions.deliver(_orderId, _sigPharmacist, _sigRecipient, _deltas, {value: value.add(1).toNumber()});
-        //         });
-        //
-        //     });
-        // });
+        it('should reject delivery because pharmacist is unknown', next => {
+
+            if (!_orderId) {
+                next(new Error('No existing orders..'));
+            }
+
+            // Get current version for Order
+            ethersInterface.functions.getOrder(_orderId).then(order => {
+
+                // Preparing order issuance params
+                const commitment = ethers.utils.solidityKeccak256(['bytes32', 'uint8'], [_orderId, 2]);
+                const _sigPharmacist = web3.eth.sign(walletUnknown.address, commitment);
+                const _sigRecipient = web3.eth.sign(walletRecipient.address, commitment);
+                const _deltas = [2, 0];
+
+                // Subscribing to events
+                const height = web3.eth.getBlock('latest').number;
+                const logDeliveryQuery = web3Interface.LogDeliveryQuery({orderId: _orderId}, {
+                    fromBlock: height,
+                    toBlock: 'latest'
+                });
+
+                logDeliveryQuery.watch(function (err, data) {
+                    console.log('LogDeliveryQuery : ' + data.args.queryId);
+
+                    const logDelivery = web3Interface.LogDelivery({queryId: data.args.queryId}, {
+                        fromBlock: height,
+                        toBlock: 'latest'
+                    });
+
+                    const logFailedDelivery = web3Interface.LogFailedDelivery({queryId: data.args.queryId}, {
+                        fromBlock: height,
+                        toBlock: 'latest'
+                    });
+
+                    filters.push(logDeliveryQuery, logDelivery, logFailedDelivery);
+
+                    // Waiting for events from contract to end this test
+                    logDelivery.watch(function (err, data) {
+                        next(new Error('LogDelivery should not be called'));
+                    });
+
+                    logFailedDelivery.watch(function (err, data) {
+                        next();
+                    });
+                });
+
+                // Calling contract function
+                web3Interface.getOracleQueryPrice.call("URL").then(value => {
+                    ethersInterface.functions.deliver(_orderId, _sigPharmacist, _sigRecipient, _deltas, {value: value.add(1).toNumber()});
+                });
+
+            });
+        });
 
         it('should accept a delivery', next => {
 
