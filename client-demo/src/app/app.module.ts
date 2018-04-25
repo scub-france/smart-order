@@ -18,6 +18,8 @@ import { ToastrModule } from "ngx-toastr";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { KeysPipe } from "./components/common/keys.pipe";
 import { HttpClientModule } from "@angular/common/http";
+import { DeliveryService } from "./services/delivery/delivery.service";
+import { MomentModule } from 'ngx-moment';
 
 @NgModule({
   imports: [
@@ -28,7 +30,8 @@ import { HttpClientModule } from "@angular/common/http";
     HttpClientModule,
     ClipboardModule,
     BrowserAnimationsModule,
-    ToastrModule.forRoot()
+    ToastrModule.forRoot(),
+    MomentModule
   ],
   declarations: [
     AppComponent,
@@ -43,7 +46,8 @@ import { HttpClientModule } from "@angular/common/http";
   ],
   providers: [
     Web3Service,
-    OrderService
+    OrderService,
+    DeliveryService
   ],
   bootstrap: [AppComponent]
 })
