@@ -72,6 +72,8 @@ export class DoctorViewComponent implements OnInit {
     let order: Order = this.formGroup.getRawValue();
     this.orderService.issueOrder(order).subscribe(res => {
       this.toastrService.info('Transaction broadcasted, order issuance is being processed', 'Processing');
+      this.hideForm();
+      this.resetForm();
     }, err => {
       this.toastrService.error('Transaction rejected by EVM', 'Error');
     });
@@ -80,7 +82,7 @@ export class DoctorViewComponent implements OnInit {
   public show(id: string): void {
     this.isNew = false;
     this.resetForm();
-    this.orderService.fetchData(id).subscribe(order => {
+    this.orderService.findOrder(id).subscribe(order => {
 
       // Merging remote data into local object
       this.orders[id] = Object.assign(this.orders[id], order);
@@ -115,6 +117,10 @@ export class DoctorViewComponent implements OnInit {
     this.showForm = false;
   }
 
+  public getBlockTimeStamp(height: number): Date {
+    return this.web3Service.getBlockTimestamp(height);
+  }
+
   public ngOnInit(): void {
 
     // Init accounts
@@ -122,16 +128,18 @@ export class DoctorViewComponent implements OnInit {
       this.account = accounts[2];
       this.resetForm();
 
-      // Subscribe to user's issuance events
-      this.orderService.watchIssuanceQuery(this.account).subscribe(order => {
-        this.orders[order.id] = order;
-      });
+      // Watch for issuance queries
+      this.orderService.watchIssuanceQuery({issuer: this.account}).subscribe(data => {
+        this.orderService.findOrder(data.queryId).subscribe(order => {
+          this.orders[order.id] = order;
 
-      this.orderService.watchIssuance(this.account).subscribe(event => {
-        this.orders[event.queryId].version = 2;
-        this.hideForm();
+          // Watch for issuance event
+          this.orderService.watchIssuance({issuer: this.account, queryId: order.id}).subscribe(event => {
+            this.orders[order.id].version = 2;
+            this.hideForm();
+          });
+        });
       });
-
     }, err => alert(err));
   }
 }

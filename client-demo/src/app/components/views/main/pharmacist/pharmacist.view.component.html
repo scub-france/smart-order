@@ -3,15 +3,245 @@
     <div class="hero-body">
       <div class="container">
         <h1 class="title">Pharmacist</h1>
-        <h2 class="subtitle">subtitle</h2>
+        <div class="field">
+          <div class="control">
+            <div class="select is-primary ">
+              <select>
+                <option>{{ getAddress() }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
-  <br>
-  <section class="section">
-    <div class="container">
-      <h1 class="title">Title</h1>
-      <h1 class="title is-4 is-info help">info</h1>
+
+
+  <form [formGroup]="formGroup">
+
+    <!-- DELIVERIES LIST -->
+    <section class="section">
+      <div class="container">
+        <div class="level">
+          <div class="level-left">
+            <div class="level-item">
+              <h1 class="title">Deliveries</h1>
+            </div>
+          </div>
+          <div class="level-right">
+            <div class="level-item">
+              <div class="field has-addons">
+                <p class="control">
+                  <input class="input" type="text" placeholder="Order ID" formControlName="orderId">
+                </p>
+                <div class="control">
+                  <div class="button is-primary" (click)="findOrder()">Find</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="box">
+          <div class="field">
+            <table class="table is-striped is-narrow is-fullwidth is-bordered"
+                   style="table-layout: fixed; word-wrap:break-word;">
+              <thead class="has-background-white-ter">
+              <tr>
+                <th>Datetime</th>
+                <th>Order</th>
+                <th>Recipient</th>
+                <th>Delivery</th>
+                <th>Status</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let id of deliveries | keys">
+                <td>{{ deliveries[id].timestamp }}</td>
+                <td><a (click)="show(deliveries[id].orderId)">{{ deliveries[id].orderId }}</a></td>
+                <td>{{ getRecipient(deliveries[id].orderId) }}</td>
+                <td>{{ id }}</td>
+                <td>{{ deliveries[id].pending ? "Processing" : "Delivered" }}</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ORDER FORM -->
+    <div class="section">
+      <div class="container" *ngIf="showForm">
+        <h1 class="title">Details</h1>
+        <div class="box">
+
+          <!-- TOP -->
+          <div class="columns">
+            <div class="column is-one-third">
+
+              <!-- ID -->
+              <div class="field is-horizontal">
+                <div class="field-label">
+                  <label class="label">Id</label>
+                </div>
+                <div class="field-body">
+                  <div class="field">
+                    <p class="control">
+                      <input class="input has-background-white-ter" type="text" readonly value="{{ order.id }}">
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ISSUER -->
+              <div class="field is-horizontal">
+                <div class="field-label">
+                  <label class="label">Issuer</label>
+                </div>
+                <div class="field-body">
+                  <div class="field">
+                    <p class="control">
+                      <input class="input has-background-white-ter" type="text" readonly value="{{ order.issuer }}">
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- TIMESTAMP -->
+              <div class="field is-horizontal">
+                <div class="field-label">
+                  <label class="label">On the</label>
+                </div>
+                <div class="field-body">
+                  <div class="field">
+                    <p class="control">
+                      <input class="input has-background-white-ter" type="text" readonly value="{{ order.timestamp }}">
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RECIPIENT -->
+            <div class="column is-one-third is-offset-one-third">
+              <div class="field is-horizontal">
+                <div class="field-label">
+                  <label class="label is-small">Recipient</label>
+                </div>
+                <div class="field-body">
+                  <div class="field">
+                    <p class="control">
+                      <input class="input has-background-white-ter" type="text" readonly value="{{ order.recipient }}">
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- VALIDITY -->
+              <div class="field is-horizontal">
+                <div class="field-label">
+                  <label class="label is-small">Validity</label>
+                </div>
+                <div class="field-body">
+                  <div class="field">
+                    <p class="control">
+                      <input class="input has-background-white-ter" type="text" readonly value="{{ order.validity }}">
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <br>
+
+          <!-- PRESCRIPTIONS -->
+          <div class="field">
+            <table class="table is-striped is-narrow is-hoverable is-fullwidth is-bordered">
+              <thead class="has-background-white-ter">
+              <tr>
+                <th>Molecule</th>
+                <th>Remaining</th>
+                <th>Delivery</th>
+                <th>Unit</th>
+                <th>Dosage</th>
+              </tr>
+              </thead>
+              <tbody formArrayName="deltas">
+              <tr *ngFor="let rowCtl of formGroup.controls.deltas.controls; let iR = index">
+                <td><input class="input has-background-white-ter" type="text" readonly
+                           value="{{ order.prescriptions[iR].designation }}"></td>
+                <td><input class="input has-background-white-ter" type="text" readonly
+                           value="{{ order.prescriptions[iR].amount }}"></td>
+                <td><input class="input" type="number" [formControl]="rowCtl"></td>
+                <td><input class="input has-background-white-ter" type="text" readonly
+                           value="{{ order.prescriptions[iR].unit }}"></td>
+                <td><input class="input has-background-white-ter" type="text" readonly
+                           value="{{ order.prescriptions[iR].dosage }}"></td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+          <br>
+
+          <!-- BOTTOM -->
+          <div class="columns">
+            <div class="column is-one-quarter">
+              <div class="field">
+                <label class="label">Fingerprint</label>
+                <div class="control">
+                  <textarea class="textarea has-background-white-ter" type="text"
+                            readonly>{{ getFingerprint() }}</textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="column is-one-quarter is-offset-one-quarter">
+              <div class="field">
+                <label class="label">Recipient signature</label>
+                <div class="control">
+                  <textarea class="textarea" type="text" formControlName="signatureRecipient"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="column is-one-quarter">
+              <div class="field">
+                <label class="label">Pharmacist signature</label>
+                <div class="control">
+                  <textarea class="textarea has-background-white-ter" type="text" formControlName="signaturePharmacist"
+                            readonly></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BUTTONS -->
+          <div class="level">
+            <div class="level-left">
+              <div class="level-item">
+                <div class="field">
+                  <p class="control">
+                    <button class="button" (click)="sign()">Sign</button>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="level-right">
+              <div class="level-item">
+                <div class="field is-grouped">
+                  <p class="control">
+                    <button class="button is-danger" (click)="hideForm()">Close</button>
+                  </p>
+                  <p class="control">
+                    <button class="button is-primary" (click)="submit()">Deliver</button>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
-  </section>
+  </form>
 </div>

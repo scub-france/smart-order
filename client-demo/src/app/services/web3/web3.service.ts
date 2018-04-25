@@ -31,6 +31,11 @@ export class Web3Service {
     return Ethers.utils.solidityKeccak256(types, values);
   }
 
+  public getBlockTimestamp(height: number): Date {
+    const timestamp: number = this.web3.eth.getBlock(height).timestamp;
+    return new Date(timestamp);
+  }
+
   public getAccounts(): Observable<any> {
     return Observable.create(observer => {
       this.web3.eth.getAccounts((err, accs) => {
