@@ -82,7 +82,6 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
 
         // Send authentication request to Oracle
         bytes32 queryId = oraclize_query(10, "URL", "http://92.154.91.195:8083/v1/validate/doctor", toAsciiString(_issuer));
-        //bytes32 queryId = oraclize_query(10, "URL", "json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0");
 
         // Storing Order
         // Version is set to 1 to distinguish from empty in orders mapping.
@@ -126,7 +125,6 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
 
         // Send authentication request to Oracle
         bytes32 queryId = oraclize_query(10, "URL", "http://92.154.91.195:8083/v1/validate/pharmacist", toAsciiString(_adrPharmacist));
-        //bytes32 queryId = oraclize_query(10, "URL", "json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0");
 
         // Storing delivery
         deliveries[queryId].orderId = _orderId;
