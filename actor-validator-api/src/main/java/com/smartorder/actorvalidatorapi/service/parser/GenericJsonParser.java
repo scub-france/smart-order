@@ -21,7 +21,7 @@ public class GenericJsonParser {
     public JSONObject readJsonFile(ActorType stakeHolerType, String stakeHolderPubKey) throws IOException, ParseException {
         JSONParser parser = new JSONParser();
         String fileName = stakeHolerType.getCode() + "-valid.json";
-        Resource resource = resourceLoader.getResource("classpath:doctors/"+fileName);
+        Resource resource = resourceLoader.getResource("classpath:"+stakeHolerType.getCode()+"/"+fileName);
         JSONObject result = (JSONObject) parser.parse(new InputStreamReader(resource.getInputStream()));
         if (result != null){
             return (JSONObject) result.get(stakeHolderPubKey);

@@ -39,15 +39,15 @@ public class ActorValidatorServiceImpl implements ActorValidatorService {
     }
 
     @Override
-    public JSONObject checkStakeHolderValidity(String issuedStakeHolders, ActorType typeStakeHolder) {
+    public String checkStakeHolderValidity(String issuedStakeHolders, ActorType typeStakeHolder) {
         try {
             JSONObject stakeHolder = genericJsonParser.readJsonFile(typeStakeHolder, issuedStakeHolders);
-            if (stakeHolder == null){
-                return new JSONObject(ActorUtils.getErrorResponse());
+            if (stakeHolder == null || !isStakeHolderValid(stakeHolder)){
+                return ActorUtils.getErrorResponse();
             }
-            return new JSONObject(ActorUtils.getResult(issuedStakeHolders));
+            return ActorUtils.getResult(issuedStakeHolders);
         } catch (IOException | ParseException e) {
-            return new JSONObject(ActorUtils.getErrorResponse());
+            return ActorUtils.getErrorResponse();
         }
     }
 

@@ -9,5 +9,5 @@ public interface ActorValidatorService {
 
     List<String> checkStakeHoldersValidity(List<String> issuedStakeHolders, ActorType typeStakeHolder);
 
-    JSONObject checkStakeHolderValidity(String issuedStakeHolders, ActorType typeStakeHolder);
+    String checkStakeHolderValidity(String issuedStakeHolders, ActorType typeStakeHolder);
 }

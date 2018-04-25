@@ -81,8 +81,8 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
         require(ECRecovery.recover(commitment, _sigRecipient) == _recipient);
 
         // Send authentication request to Oracle
-        // bytes32 queryId = oraclize_query(10, "URL", "json(http://localhost:8081/v1/doctor/validate).response", getOracleURLQueryParam(_issuer));
-        bytes32 queryId = oraclize_query(10, "URL", "json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0");
+        bytes32 queryId = oraclize_query(10, "URL", "http://92.154.91.195:8083/v1/validate/doctor", toAsciiString(_issuer));
+        //bytes32 queryId = oraclize_query(10, "URL", "json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0");
 
         // Storing Order
         // Version is set to 1 to distinguish from empty in orders mapping.
@@ -125,8 +125,8 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
         orders[_orderId].version += 1;
 
         // Send authentication request to Oracle
-        // bytes32 queryId = oraclize_query(10, "URL", "json(http://localhost:8081/v1/pharmacist/validate).response", getOracleURLQueryParam(_adrPharmacist));
-        bytes32 queryId = oraclize_query(10, "URL", "json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0");
+        bytes32 queryId = oraclize_query(10, "URL", "http://92.154.91.195:8083/v1/validate/pharmacist", toAsciiString(_adrPharmacist));
+        //bytes32 queryId = oraclize_query(10, "URL", "json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0");
 
         // Storing delivery
         deliveries[queryId].orderId = _orderId;
@@ -195,17 +195,29 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
         return orders[_orderId];
     }
 
-    function toString(address _adr)
+    function toAsciiString(address _x)
     internal pure returns (string) {
-        bytes memory b = new bytes(20);
-        for (uint i = 0; i < 20; i++)
-            b[i] = byte(uint8(uint(_adr) / (2 ** (8 * (19 - i)))));
-        return string(b);
+        bytes memory s = new bytes(40);
+        for (uint i = 0; i < 20; i++) {
+            byte b = byte(uint8(uint(_x) / (2**(8*(19 - i)))));
+            byte hi = byte(uint8(b) / 16);
+            byte lo = byte(uint8(b) - 16 * uint8(hi));
+            s[2*i] = char(hi);
+            s[2*i+1] = char(lo);
+        }
+        return string(s);
     }
+
+    function char(byte _b)
+    internal pure returns (byte c) {
+        if (_b < 10) return byte(uint8(_b) + 0x30);
+        else return byte(uint8(_b) + 0x57);
+    }
+
 
     function getOracleURLQueryParam(address _pubkey)
     internal pure returns (string) {
-        return strConcat('{"pubKey":"', toString(_pubkey), '"}');
+        return strConcat(toAsciiString(_pubkey), "");
     }
 
     function getOracleQueryPrice(string _type)
