@@ -207,7 +207,7 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
     }
 
     function char(byte _b)
-    internal pure returns (bytegit ) {
+    internal pure returns (byte) {
         if (_b < 10) return byte(uint8(_b) + 0x30);
         else return byte(uint8(_b) + 0x57);
     }
