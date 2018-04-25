@@ -15,16 +15,12 @@ public class ActorUtils {
         }
     }
 
-    public static Map getErrorResponse(){
-        Map error = new HashMap();
-        error.put("pubKey" , "0");
-        return error;
+    public static String getErrorResponse(){
+        return "0";
     }
 
-    public static Map getResult(String actor){
-        Map result = new HashMap();
-        result.put("pubKey" , actor);
-        return result;
+    public static String getResult(String actor){
+        return "1";
     }
 
 }

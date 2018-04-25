@@ -11,19 +11,38 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @RestController
-@RequestMapping("/validate")
+@RequestMapping("/v1/validate")
 public class ActorValidatorController {
 
     @Autowired
     private ActorValidatorService actorValidatorService;
 
+    private Logger logger = Logger.getLogger(ActorValidatorController.class.getName());
+
+    @RequestMapping("/test")
+    public ResponseEntity<JSONObject> test() {
+        Map map = new HashMap();
+        map.put("test","Api deployed in V1");
+        JSONObject response = new JSONObject(map);
+        logger.log(Level.INFO, "Api test method called");
+        return ResponseEntity
+                .ok()
+                .body(response);
+    }
+
+
     @PostMapping(path = "/doctor", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<JSONObject> checkDoctorValidity(@RequestBody String body) {
-        JSONObject response = actorValidatorService.checkStakeHolderValidity(body, ActorType.DOCTOR);
+    public ResponseEntity<String> checkDoctorValidity(@RequestBody String body) {
+        String response = actorValidatorService.checkStakeHolderValidity(body, ActorType.DOCTOR);
+        logger.log(Level.INFO, "Doctor validation called for : " + body + ", result : " + response);
         return ResponseEntity
                 .ok()
                 .body(response);
@@ -31,14 +50,15 @@ public class ActorValidatorController {
 
     @PostMapping(path = "/pharmacist", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<JSONObject> checkPharmacistValidity(@RequestBody String body) {
-        JSONObject response = actorValidatorService.checkStakeHolderValidity(body, ActorType.PHARMACIST);
+    public ResponseEntity<String> checkPharmacistValidity(@RequestBody String body) {
+        String response = actorValidatorService.checkStakeHolderValidity(body, ActorType.PHARMACIST);
+        logger.log(Level.INFO, "Pharmacist validation called for : " + body + ", result : " + response);
         return ResponseEntity
                 .ok()
                 .body(response);
     }
 
-    @PostMapping(path = "/doctors", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(path = "/doctor", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> checkDoctorsValidity(@RequestBody List<String> body) {
         List<String> validatedDoctors = actorValidatorService.checkStakeHoldersValidity(body, ActorType.DOCTOR);
@@ -47,7 +67,7 @@ public class ActorValidatorController {
                 .body("Doctor validated : " + validatedDoctors.toString());
     }
 
-    @PostMapping(path = "/pharmacists", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(path = "/pharmacist", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> checkPharmacistsValidity(@RequestBody List<String> body) {
         List<String> validatedPharmacists = actorValidatorService.checkStakeHoldersValidity(body, ActorType.PHARMACIST);
