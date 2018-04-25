@@ -27,16 +27,23 @@ export class OrderService {
       });
   }
 
-  public fetchData(id: string): Observable<Order> {
+  public findOrder(id: string): Observable<Order> {
     return Observable.create(observer => {
       this.ethersInterface.functions.getOrder(id).then(data => {
         let order: Order = new Order();
+        order.id = id;
+        order.createdAt = data['createdAt'].toNumber();
         order.validity = data['validity'].toNumber();
+        order.issuer = data['issuer'];
+        order.recipient = data['recipient'];
+        order.version = data['version'];
+        order.timestamp = this.web3Service.getBlockTimestamp(order.createdAt);
         order.prescriptions = data['prescriptions'].map(elt => {
           let prescription: Prescription = new Prescription();
           prescription.designation = elt[0];
           prescription.amount = elt[1].toNumber();
           prescription.unit = elt[2];
+          prescription.dosage = elt[3];
           return prescription;
         });
         observer.next(order);
@@ -45,47 +52,27 @@ export class OrderService {
     });
   }
 
-  public getAddress(): Observable<string> {
-    return Observable.create(observer => {
-      this.SmartOrder
-        .deployed()
-        .then(instance => {
-          observer.next(instance.address);
-          observer.complete();
-        })
-        .catch(e => {
-          console.log(e);
-          observer.error(e);
-        });
-    });
-  }
-
-  public watchIssuance(issuer: string): Observable<any> {
+  public watchIssuance(filters: Object): Observable<any> {
    return Observable.create(observer => {
-     const logIssuance = this.web3Interface.LogIssuance({issuer: issuer}, {fromBlock: 0, toBlock: 'latest'});
+     const logIssuance = this.web3Interface.LogIssuance(filters, {fromBlock: 0, toBlock: 'latest'});
      logIssuance.watch((err, data) => {
        observer.next(data.args);
      });
    });
   }
 
-  public watchIssuanceQuery(issuer: string): Observable<any> {
+  public watchIssuanceQuery(filters: Object): Observable<any> {
     return Observable.create(observer => {
-      const logIssuanceQuery = this.web3Interface.LogIssuanceQuery({issuer: issuer}, {fromBlock: 0, toBlock: 'latest'});
+      const logIssuanceQuery = this.web3Interface.LogIssuanceQuery(filters, {fromBlock: 0, toBlock: 'latest'});
       logIssuanceQuery.watch((err, data) => {
-        let order: Order = new Order();
-        order.id = data.args.queryId;
-        order.issuer = data.args.issuer;
-        order.recipient = data.args.recipient;
-        order.version = 1;
-        observer.next(order);
+        observer.next(data.args);
       });
     });
   }
 
   private preparePrescriptions(prescriptions: Prescription[]): Array<Array<string>> {
     return prescriptions.map((p: Prescription) => {
-      return [p.designation, '' + p.amount, p.unit];
+      return [p.designation, '' + p.amount, p.unit, p.dosage];
     });
   }
 

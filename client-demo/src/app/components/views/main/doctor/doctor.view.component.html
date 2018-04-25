@@ -26,14 +26,14 @@
           </div>
         </div>
         <div class="level-right">
-          <div class="level-item" *ngIf="isNew === false">
+          <div class="level-item" *ngIf="!isNew">
             <button class="button is-info" (click)="new()">New Order</button>
           </div>
         </div>
       </div>
       <div class="box">
         <div class="field">
-          <table class="table is-striped is-narrow is-fullwidth is-bordered">
+          <table class="table is-striped is-narrow is-fullwidth is-bordered" style="table-layout: fixed; word-wrap:break-word;">
             <thead class="has-background-white-ter">
             <tr>
               <th></th>
@@ -46,11 +46,12 @@
             <tbody>
             <tr *ngFor="let id of orders | keys">
               <td><a class="delete"></a>TODO</td>
-              <td>TODO</td>
+              <td>{{ orders[id].timestamp }}</td>
               <td>{{ orders[id].recipient }}</td>
               <td><a (click)="show(id)">{{ id }}</a></td>
               <td *ngIf="orders[id].version === 1">Processing</td>
               <td *ngIf="orders[id].version === 2">Issued</td>
+              <td *ngIf="orders[id].version > 2">Delivered</td>
             </tr>
             </tbody>
           </table>
@@ -60,10 +61,10 @@
   </section>
 
   <!-- ORDER DETAIL -->
-  <section class="section" *ngIf="showForm === true">
+  <section class="section" *ngIf="showForm">
     <form [formGroup]="formGroup">
       <div class="container">
-        <h1 class="title">{{ isNew === true ? "New Order" : "Order Details" }}</h1>
+        <h1 class="title">{{ isNew ? "New Order" : "Order Details" }}</h1>
         <div class="box">
 
           <!-- TOP -->
@@ -87,7 +88,7 @@
                 </div>
               </div>
 
-
+              <!-- ISSUER -->
               <div class="field is-horizontal">
                 <div class="field-label">
                   <label class="label">Issuer</label>
@@ -101,6 +102,7 @@
                 </div>
               </div>
 
+              <!-- TIMESTAMP -->
               <div class="field is-horizontal">
                 <div class="field-label">
                   <label class="label">On the</label>
@@ -130,6 +132,7 @@
                 </div>
               </div>
 
+              <!-- VALIDITY -->
               <div class="field is-horizontal">
                 <div class="field-label">
                   <label class="label is-small">Validity</label>
@@ -144,9 +147,9 @@
               </div>
             </div>
           </div>
-
-          <!-- MIDDLE -->
           <br>
+
+          <!-- PRESCRIPTIONS -->
           <div class="field">
             <table class="table is-striped is-narrow is-hoverable is-fullwidth is-bordered">
               <thead class="has-background-white-ter">
@@ -170,9 +173,9 @@
             </table>
             <button class="button" (click)="addItem()" *ngIf="isNew">Add item</button>
           </div>
+          <br>
 
           <!-- BOTTOM -->
-          <br>
           <div class="columns" *ngIf="isNew">
             <div class="column is-one-quarter">
               <div class="field">

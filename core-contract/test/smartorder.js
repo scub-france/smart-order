@@ -52,7 +52,7 @@ function getValidOrderObject() {
     const order = {
         issuer: walletIssuer.address,
         recipient: walletRecipient.address,
-        prescriptions: [['5-hydroxytryptamine', '1', 'mg'], ['4-(2-aminoéthyl)benzène-1,2-diol', '2', 'g']],
+        prescriptions: [['5-hydroxytryptamine', '1', 'mg', '3/dx5'], ['4-(2-aminoéthyl)benzène-1,2-diol', '2', 'g', '1/dx3m']],
         validity: 0
     };
 

@@ -22,7 +22,7 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
     event LogFailedIssuance(bytes32 indexed queryId, uint block);
     event LogIssuance(bytes32 indexed queryId, uint block, address indexed issuer, address indexed recipient);
 
-    event LogDeliveryQuery(bytes32 indexed orderId, bytes32 indexed queryId, uint block, address pharmacist, uint8 version);
+    event LogDeliveryQuery(bytes32 indexed orderId, bytes32 indexed queryId, uint block, address indexed pharmacist, uint8 version);
     event LogFailedDelivery(bytes32 indexed queryId, uint block);
     event LogDelivery(bytes32 indexed queryId, uint8 index, uint amount);
 
@@ -35,6 +35,7 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
         string designation;
         uint amount;
         string unit;
+        string dosage;
     }
 
     struct Order {
@@ -94,6 +95,7 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
             prescription.designation = _prescriptions[i][0];
             prescription.amount = parseInt(_prescriptions[i][1]);
             prescription.unit = _prescriptions[i][2];
+            prescription.dosage = _prescriptions[i][3];
             orders[queryId].prescriptions.push(prescription);
         }
 
