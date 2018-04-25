@@ -12,7 +12,7 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 
 export class PatientViewComponent implements OnInit {
 
-  private account: any;
+  public account: string;
   public formGroup: FormGroup;
 
   public constructor(private router: Router,
@@ -25,10 +25,6 @@ export class PatientViewComponent implements OnInit {
     this.formGroup.get('signature').setValue(this.web3Service.sign(this.account, this.formGroup.get('commitment').value));
   }
 
-  public getAddress(): string {
-    return this.account;
-  }
-
   public ngOnInit(): void {
 
     this.formGroup = this.formBuilder.group({
@@ -38,6 +34,6 @@ export class PatientViewComponent implements OnInit {
 
     this.web3Service.getAccounts().subscribe(accounts => {
       this.account = accounts[3];
-    }, err => alert(err));
+    });
   }
 }

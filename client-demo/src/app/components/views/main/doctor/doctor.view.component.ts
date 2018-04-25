@@ -15,8 +15,7 @@ import { Order } from "../../../../model/order.model";
 
 export class DoctorViewComponent implements OnInit {
 
-  private account: any;
-
+  public account: string;
   public showForm: boolean = false;
   public isNew: boolean = false;
 
@@ -35,10 +34,6 @@ export class DoctorViewComponent implements OnInit {
     this.addItem();
     this.isNew = true;
     this.showForm = true;
-  }
-
-  public getAddress(): string {
-    return this.account;
   }
 
   public addItem(): void {

@@ -17,8 +17,7 @@ import { Delivery } from "../../../../model/delivery.model";
 
 export class PharmacistViewComponent implements OnInit {
 
-  public account: any;
-
+  public account: string;
   public showForm: boolean = false;
 
   public formGroup: FormGroup;
@@ -31,10 +30,6 @@ export class PharmacistViewComponent implements OnInit {
                      private orderService: OrderService,
                      private deliveryService: DeliveryService,
                      private toastrService: ToastrService) {
-  }
-
-  public getAddress(): string {
-    return this.account;
   }
 
   // This function signs the current commitment and fills its form input
