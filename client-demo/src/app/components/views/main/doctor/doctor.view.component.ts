@@ -117,10 +117,6 @@ export class DoctorViewComponent implements OnInit {
     this.showForm = false;
   }
 
-  public getBlockTimeStamp(height: number): Date {
-    return this.web3Service.getBlockTimestamp(height);
-  }
-
   public ngOnInit(): void {
 
     // Init accounts
