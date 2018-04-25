@@ -26,24 +26,6 @@ export class DeliveryService {
       });
   }
 
-  // public fetchData(id: string): Observable<Order> {
-  //   return Observable.create(observer => {
-  //     this.ethersInterface.functions.getOrder(id).then(data => {
-  //       let order: Order = new Order();
-  //       order.validity = data['validity'].toNumber();
-  //       order.prescriptions = data['prescriptions'].map(elt => {
-  //         let prescription: Prescription = new Prescription();
-  //         prescription.designation = elt[0];
-  //         prescription.amount = elt[1].toNumber();
-  //         prescription.unit = elt[2];
-  //         return prescription;
-  //       });
-  //       observer.next(order);
-  //       observer.complete();
-  //     });
-  //   });
-  // }
-
   public watchDelivery(filters: Object): Observable<any> {
     return Observable.create(observer => {
       const logDelivery = this.web3Interface.LogDelivery(filters, {fromBlock: 0, toBlock: 'latest'});
