@@ -207,15 +207,9 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
     }
 
     function char(byte _b)
-    internal pure returns (byte c) {
+    internal pure returns (bytegit ) {
         if (_b < 10) return byte(uint8(_b) + 0x30);
         else return byte(uint8(_b) + 0x57);
-    }
-
-
-    function getOracleURLQueryParam(address _pubkey)
-    internal pure returns (string) {
-        return strConcat(toAsciiString(_pubkey), "");
     }
 
     function getOracleQueryPrice(string _type)
