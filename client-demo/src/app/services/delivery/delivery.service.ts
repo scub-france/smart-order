@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { Web3Service } from "../web3/web3.service";
-import { Order } from "../../model/order.model";
-import { Prescription } from "../../model/prescriptions.model";
-import { Delivery } from "../../model/delivery.model";
+import { Web3Service } from '../web3/web3.service';
+import { Delivery } from '../../model/delivery.model';
 
 const Ethers = require('ethers');
 const artifact = require('../../../../../core-contract/build/contracts/SmartOrder.json');
@@ -51,7 +49,7 @@ export class DeliveryService {
 
   public deliver(delivery: Delivery): Observable<any> {
     return Observable.create(observer => {
-      this.web3Interface.getOracleQueryPrice.call("URL")
+      this.web3Interface.getOracleQueryPrice.call('URL')
         .then(value => {
           return this.ethersInterface.functions.deliver(delivery.orderId, delivery.signaturePharmacist, delivery.signatureRecipient, delivery.deltas, {value: value.add(1).toNumber()});
         }).then(res => {

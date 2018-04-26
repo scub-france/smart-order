@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { environment } from '../../../environments/environment';
-import { Web3Service } from "../web3/web3.service";
-import { Order } from "../../model/order.model";
-import { Prescription } from "../../model/prescriptions.model";
-import { observable } from "rxjs/symbol/observable";
+import { Web3Service } from '../web3/web3.service';
+import { Order } from '../../model/order.model';
+import { Prescription } from '../../model/prescriptions.model';
 
 const Ethers = require('ethers');
 const artifact = require('../../../../../core-contract/build/contracts/SmartOrder.json');
@@ -79,7 +77,7 @@ export class OrderService {
   public issueOrder(order: Order): Observable<any> {
     return Observable.create(observer => {
       const prescriptionsDto = this.preparePrescriptions(order.prescriptions);
-      this.web3Interface.getOracleQueryPrice.call("URL")
+      this.web3Interface.getOracleQueryPrice.call('URL')
         .then(value => {
           return this.ethersInterface.functions.issueOrder(order.issuer, order.recipient, prescriptionsDto, order.validity, order.signatureIssuer, order.signatureRecipient, {value: value.add(1).toNumber()});
         }).then(res => {
