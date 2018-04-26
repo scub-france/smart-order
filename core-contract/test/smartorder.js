@@ -15,9 +15,9 @@ const ethers = require('ethers');
  * GLOBAL VARS
  */
 let web3Interface, ethersInterface;
-
 const url = process.env.ETHEREUM_PROVIDER || "http://localhost:9545";
 const provider = new ethers.providers.JsonRpcProvider(url);
+const abiEncoder = new ethers.utils.AbiCoder;
 
 // Account used for contract deployment (owner)
 const walletOwner = new ethers.Wallet('0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3');       // 0
@@ -43,9 +43,37 @@ walletPharmacist.provider = provider;
 const walletUnknown = new ethers.Wallet('0x659cbb0e2411a44db63778987b1e22153c086a95eb6b18bdf89de078917abc63');     // 5
 walletUnknown.provider = provider;
 
+/**
+ * This function calculates the signature of a smart-contract function
+ * @param name of the contract function
+ * @returns signature of the function
+ */
+function getFunctionSignature(name) {
+    var json = web3Interface.abi.find(function(element) {
+        return element.name === name;
+    });
+
+    var typeName = json.inputs.map(function (i) {
+        return i.type;
+    }).join(',');
+
+    return web3.sha3(json.name + '(' + typeName + ')').slice(0, 10);
+}
 
 /**
- * UTILS
+ * This function 'calculate' the data (minus the signatures) encoded in a issueOrder transaction.
+ * @param order
+ * @returns commitment
+ */
+function getCommitment(order) {
+    const sigFunction = getFunctionSignature('issueOrder');
+    const dummy = web3.eth.sign(walletIssuer.address, 'dummy');
+    const encodedParams = abiEncoder.encode(['address', 'address', 'string[][]', 'uint', 'bytes', 'bytes'], [order.issuer, order.recipient, order.prescriptions, order.validity, dummy, dummy]).slice(2);
+    return (sigFunction + encodedParams).slice(0, -448);
+}
+
+/**
+ * This function returns a valid Order object
  * @returns {{issuer: *, recipient: *, prescriptions: *[], validity: number}}
  */
 function getValidOrderObject() {
@@ -56,12 +84,14 @@ function getValidOrderObject() {
         validity: 0
     };
 
-    const commitment = ethers.utils.solidityKeccak256(['address', 'address'], [order.issuer, order.recipient]);
-    order.sigIssuer = web3.eth.sign(walletIssuer.address, commitment);
-    order.sigRecipient = web3.eth.sign(walletRecipient.address, commitment);
+    // Signature is done on transaction data (minus signatures), in order to avoid current libraries limitations regarding
+    // hashing of multidimensional arrays.
+    const commitment = getCommitment(order);
+    const fingerprint = ethers.utils.solidityKeccak256(['bytes'], [commitment]);
+    order.sigIssuer = web3.eth.sign(walletIssuer.address, fingerprint);
+    order.sigRecipient = web3.eth.sign(walletRecipient.address, fingerprint);
     return order;
 }
-
 
 /**
  * UNIT TESTS
@@ -130,13 +160,13 @@ contract('SmartOrder', accounts => {
 
         // TODO : wrong address format ?
         // https://www.dasp.co/#item-9
-
         it('should reject issuance with wrong issuer signature', next => {
 
             // Signing commitment with wrong key
             const order = getValidOrderObject();
-            const commitment = ethers.utils.solidityKeccak256(['address', 'address'], [order.issuer, order.recipient]);
-            order.sigIssuer = web3.eth.sign(walletUnknown.address, commitment);
+            const commitment = getCommitment(order);
+            const fingerprint = ethers.utils.solidityKeccak256(['bytes'], [commitment]);
+            order.sigIssuer = web3.eth.sign(walletUnknown.address, fingerprint);
 
             // Calling contract function
             web3Interface.getOracleQueryPrice.call("URL").then(value => {
@@ -166,8 +196,9 @@ contract('SmartOrder', accounts => {
 
             // Signing commitment with wrong key
             const order = getValidOrderObject();
-            const commitment = ethers.utils.solidityKeccak256(['address', 'address'], [order.issuer, order.recipient]);
-            order.sigRecipient = web3.eth.sign(walletUnknown.address, commitment);
+            const commitment = getCommitment(order);
+            const fingerprint = ethers.utils.solidityKeccak256(['bytes'], [commitment]);
+            order.sigRecipient = web3.eth.sign(walletUnknown.address, fingerprint);
 
             // Calling contract function
             web3Interface.getOracleQueryPrice.call("URL").then(value => {
@@ -220,9 +251,12 @@ contract('SmartOrder', accounts => {
             // Calling contract function
             const order = getValidOrderObject();
             order.issuer = walletUnknown.address;
-            const commitment = ethers.utils.solidityKeccak256(['address', 'address'], [order.issuer, order.recipient]);
-            order.sigIssuer = web3.eth.sign(walletUnknown.address, commitment);
-            order.sigRecipient = web3.eth.sign(walletRecipient.address, commitment);
+
+            // Refreshing commitment fingerprint & signatures
+            const commitment = getCommitment(order);
+            const fingerprint = ethers.utils.solidityKeccak256(['bytes'], [commitment]);
+            order.sigIssuer = web3.eth.sign(walletUnknown.address, fingerprint);
+            order.sigRecipient = web3.eth.sign(walletRecipient.address, fingerprint);
 
             web3Interface.getOracleQueryPrice.call("URL").then(value => {
                 ethersInterface.functions.issueOrder(order.issuer, order.recipient, order.prescriptions, order.validity, order.sigIssuer, order.sigRecipient, {value: value.add(1).toNumber()});
