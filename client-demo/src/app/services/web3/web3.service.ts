@@ -19,6 +19,12 @@ export class Web3Service {
     this.wallet.provider = new Ethers.providers.JsonRpcProvider(environment.HttpProvider);
   }
 
+  /**
+   * Parses a given abi and returns the solidity function signature for a givent function.
+   * @param abi
+   * @param {string} name
+   * @returns {string}
+   */
   public getFunctionSignature(abi: any, name: string): string {
     var json = abi.find(function(element) {
       return element.name === name;
@@ -31,23 +37,51 @@ export class Web3Service {
     return this.web3.sha3(json.name + '(' + typeName + ')').slice(0, 10);
   }
 
+  /**
+   * Validates an ethereum address.
+   * @param {string} input
+   * @returns {boolean}
+   */
   public isAddress(input: string): boolean {
     return this.web3.isAddress(input);
   }
 
+  /**
+   * Signs given data with the private key associated with provided address.
+   * (private key must be present in wallet)
+   * @param address
+   * @param data
+   * @returns {any}
+   */
   public sign(address: any, data: any): any {
     return this.web3.eth.sign(address, data);
   }
 
+  /**
+   * Calculates solidity keccak.
+   * PS: solidity does not pad given values, hence the need to specify their types.
+   * @param {string[]} types
+   * @param {any[]} values
+   * @returns {string}
+   */
   public keccak(types: string[], values: any[]): string {
     return Ethers.utils.solidityKeccak256(types, values);
   }
 
+  /**
+   * Returns the approximate network time recorded for a given block height.
+   * @param {number} height
+   * @returns {Date}
+   */
   public getBlockTimestamp(height: number): Date {
     const timestamp: number = this.web3.eth.getBlock(height).timestamp;
     return new Date(timestamp);
   }
 
+  /**
+   * Provides the list of accounts existing on wallet.
+   * @returns {Observable<any>}
+   */
   public getAccounts(): Observable<any> {
     return Observable.create(observer => {
       this.web3.eth.getAccounts((err, accs) => {

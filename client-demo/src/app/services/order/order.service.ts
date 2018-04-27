@@ -27,6 +27,11 @@ export class OrderService {
       });
   }
 
+  /**
+   * Calculates the encoded data (minus signatures part) sent in a issuance tx for a given order,
+   * @param {Order} order
+   * @returns {string}
+   */
   private getIssuanceCommitment(order: Order): string {
     let commitment: string = '';
     if (this.web3Service.isAddress(order.recipient)) {
@@ -41,6 +46,11 @@ export class OrderService {
     return commitment;
   }
 
+  /**
+   * Calculates the hash identifying a given order.
+   * @param {Order} order
+   * @returns {string}
+   */
   public getIssuanceFingerprint(order: Order): string {
     const commitment = this.getIssuanceCommitment(order);
     if (commitment !== '') {
@@ -49,6 +59,11 @@ export class OrderService {
     return commitment;
   }
 
+  /**
+   * Find an order with a given id, and read its properties from the blockchain
+   * @param {string} id
+   * @returns {Observable<Order>}
+   */
   public findOrder(id: string): Observable<Order> {
     return Observable.create(observer => {
       this.ethersInterface.functions.getOrder(id).then(data => {
@@ -74,6 +89,11 @@ export class OrderService {
     });
   }
 
+  /**
+   * Subscribe to Issuance events occurring on the network.
+   * @param {Object} filters
+   * @returns {Observable<any>}
+   */
   public watchIssuance(filters: Object): Observable<any> {
     return Observable.create(observer => {
       const logIssuance = this.web3Interface.LogIssuance(filters, {fromBlock: 0, toBlock: 'latest'});
@@ -83,6 +103,11 @@ export class OrderService {
     });
   }
 
+  /**
+   * Subscribe to IssuanceQuery events occurring on the network.
+   * @param {Object} filters
+   * @returns {Observable<any>}
+   */
   public watchIssuanceQuery(filters: Object): Observable<any> {
     return Observable.create(observer => {
       const logIssuanceQuery = this.web3Interface.LogIssuanceQuery(filters, {fromBlock: 0, toBlock: 'latest'});
@@ -92,12 +117,22 @@ export class OrderService {
     });
   }
 
+  /**
+   * Arrayify prescriptions objects in order to encode them in tx data.
+   * @param {Prescription[]} prescriptions
+   * @returns {Array<Array<string>>}
+   */
   private preparePrescriptions(prescriptions: Prescription[]): Array<Array<string>> {
     return prescriptions.map((p: Prescription) => {
       return [p.designation, '' + p.amount, p.unit, p.dosage];
     });
   }
 
+  /**
+   * Craft & broadcast a transaction to issue a new order.
+   * @param {Order} order
+   * @returns {Observable<any>}
+   */
   public issueOrder(order: Order): Observable<any> {
     return Observable.create(observer => {
       const prescriptionsDto = this.preparePrescriptions(order.prescriptions);
