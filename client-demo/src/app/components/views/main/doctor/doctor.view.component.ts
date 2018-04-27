@@ -1,10 +1,10 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import { Web3Service } from '../../../../services/web3/web3.service';
-import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { ToastrService } from "ngx-toastr";
-import { OrderService } from "../../../../services/order/order.service";
-import { Order } from "../../../../model/order.model";
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ToastrService } from 'ngx-toastr';
+import { OrderService } from '../../../../services/order/order.service';
+import { Order } from '../../../../model/order.model';
 
 @Component({
   selector: 'app-doctor-view',
@@ -37,6 +37,9 @@ export class DoctorViewComponent implements OnInit {
     this.showForm = true;
   }
 
+  /**
+   * Method used to add a new row in the formgroup to handle a new prescription inputs.
+   */
   public addItem(): void {
     const itemFormGroup: FormGroup = this.formBuilder.group({
       designation: ['', Validators.required],
@@ -48,20 +51,32 @@ export class DoctorViewComponent implements OnInit {
     this.getFingerprint();
   }
 
+  /**
+   * Method used to remove a given prescription from the formgroup.
+   * @param {number} index
+   */
   public removeItem(index: number): void {
     (<FormArray>this.formGroup.get('prescriptions')).removeAt(index);
     this.getFingerprint();
   }
 
+  /**
+   * Method used to calculate current order fingerprint.
+   */
   public getFingerprint(): void {
     this.fingerprint = this.orderService.getIssuanceFingerprint(this.formGroup.getRawValue());
   }
 
-  // This function signs the current commitment and fills its form input
+  /**
+   * Method used to sign the current order fingerprint with selected doctor address.
+   */
   public sign(): void {
     this.formGroup.get('signatureIssuer').setValue(this.web3Service.sign(this.account, this.fingerprint));
   }
 
+  /**
+   * Method used to submit the formgroup and proceed to order issuance.
+   */
   public submit(): void {
     let order: Order = this.formGroup.getRawValue();
     this.orderService.issueOrder(order).subscribe(res => {
@@ -73,6 +88,10 @@ export class DoctorViewComponent implements OnInit {
     });
   }
 
+  /**
+   * Method used to load the formgroup with data of an existing Order.
+   * @param {string} id
+   */
   public show(id: string): void {
     this.isNew = false;
     this.resetForm();
@@ -92,6 +111,9 @@ export class DoctorViewComponent implements OnInit {
     });
   }
 
+  /**
+   * Method used to clear the formgroup.
+   */
   private resetForm(): void {
     this.formGroup = this.formBuilder.group({
       id: [null],
@@ -106,11 +128,17 @@ export class DoctorViewComponent implements OnInit {
     });
   }
 
+  /**
+   * Method used to hide the form displaying an order details.
+   */
   public hideForm(): void {
     this.isNew = false;
     this.showForm = false;
   }
 
+  /**
+   * Angular method called when this component is displayed.
+   */
   public ngOnInit(): void {
 
     // Init accounts

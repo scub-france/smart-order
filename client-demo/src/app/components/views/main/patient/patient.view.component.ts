@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import { Web3Service } from '../../../../services/web3/web3.service';
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { FormBuilder, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-patient-view',
@@ -20,16 +20,21 @@ export class PatientViewComponent implements OnInit {
                      private formBuilder: FormBuilder) {
   }
 
-  // This function signs the current commitment and fills its form input
+  /**
+   * Method used to sign the 'commitment' input from the formgroup with the selected patient address.
+   */
   public sign(): void {
     this.formGroup.get('signature').setValue(this.web3Service.sign(this.account, this.formGroup.get('commitment').value));
   }
 
+  /**
+   * Angular method called when this component is displayed.
+   */
   public ngOnInit(): void {
 
     this.formGroup = this.formBuilder.group({
-      commitment: [null],
-      signature: [null],
+      commitment: [''],
+      signature: ['']
     });
 
     this.web3Service.getAccounts().subscribe(accounts => {

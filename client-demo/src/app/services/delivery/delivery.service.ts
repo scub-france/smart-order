@@ -24,6 +24,11 @@ export class DeliveryService {
       });
   }
 
+  /**
+   * Subscribe to Delivery events occurring on the network.
+   * @param {Object} filters
+   * @returns {Observable<any>}
+   */
   public watchDelivery(filters: Object): Observable<any> {
     return Observable.create(observer => {
       const logDelivery = this.web3Interface.LogDelivery(filters, {fromBlock: 0, toBlock: 'latest'});
@@ -33,6 +38,11 @@ export class DeliveryService {
     });
   }
 
+  /**
+   * Subscribe to DeliveryQuery events occurring on the network.
+   * @param {Object} filters
+   * @returns {Observable<any>}
+   */
   public watchDeliveryQuery(filters: Object): Observable<any> {
     return Observable.create(observer => {
       const logDeliveryQuery = this.web3Interface.LogDeliveryQuery(filters, {fromBlock: 0, toBlock: 'latest'});
@@ -47,6 +57,11 @@ export class DeliveryService {
     });
   }
 
+  /**
+   * Craft & broadcast a transaction to register a new delivery.
+   * @param {Delivery} delivery
+   * @returns {Observable<any>}
+   */
   public deliver(delivery: Delivery): Observable<any> {
     return Observable.create(observer => {
       this.web3Interface.getOracleQueryPrice.call('URL')
