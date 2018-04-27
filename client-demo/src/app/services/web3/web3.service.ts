@@ -19,6 +19,18 @@ export class Web3Service {
     this.wallet.provider = new Ethers.providers.JsonRpcProvider(environment.HttpProvider);
   }
 
+  public getFunctionSignature(abi: any, name: string): string {
+    var json = abi.find(function(element) {
+      return element.name === name;
+    });
+
+    var typeName = json.inputs.map(function (i) {
+      return i.type;
+    }).join(',');
+
+    return this.web3.sha3(json.name + '(' + typeName + ')').slice(0, 10);
+  }
+
   public isAddress(input: string): boolean {
     return this.web3.isAddress(input);
   }

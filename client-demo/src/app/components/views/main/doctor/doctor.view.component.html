@@ -33,7 +33,8 @@
       </div>
       <div class="box">
         <div class="field">
-          <table class="table is-striped is-narrow is-fullwidth is-bordered" style="table-layout: fixed; word-wrap:break-word;">
+          <table class="table is-striped is-narrow is-fullwidth is-bordered"
+                 style="table-layout: fixed; word-wrap:break-word;">
             <thead class="has-background-white-ter">
             <tr>
               <th></th>
@@ -96,7 +97,8 @@
                 <div class="field-body">
                   <div class="field">
                     <p class="control">
-                      <input class="input has-background-white-ter" type="text" readonly formControlName="issuer">
+                      <input class="input has-background-white-ter" type="text" readonly formControlName="issuer"
+                             (change)="getFingerprint()">
                     </p>
                   </div>
                 </div>
@@ -126,7 +128,8 @@
                 <div class="field-body">
                   <div class="field">
                     <p class="control">
-                      <input class="input" type="text" formControlName="recipient" [readonly]="!isNew" [class.has-background-white-ter]="!isNew">
+                      <input class="input" type="text" formControlName="recipient" (change)="getFingerprint()"
+                             [readonly]="!isNew" [class.has-background-white-ter]="!isNew">
                     </p>
                   </div>
                 </div>
@@ -140,7 +143,8 @@
                 <div class="field-body">
                   <div class="field">
                     <p class="control">
-                      <input class="input" type="text" formControlName="validity" [readonly]="!isNew" [class.has-background-white-ter]="!isNew">
+                      <input class="input" type="text" formControlName="validity" (change)="getFingerprint()"
+                             [readonly]="!isNew" [class.has-background-white-ter]="!isNew">
                     </p>
                   </div>
                 </div>
@@ -164,10 +168,14 @@
               <tbody formArrayName="prescriptions">
               <tr *ngFor="let rowCtl of formGroup.controls.prescriptions.controls; let iR = index" [formGroupName]="iR">
                 <td *ngIf="isNew"><a class="delete" (click)="removeItem(iR)"></a></td>
-                <td><input class="input" type="text" formControlName="designation" [readonly]="!isNew" [class.has-background-white-ter]="!isNew"></td>
-                <td><input class="input" type="number" formControlName="amount" [readonly]="!isNew" [class.has-background-white-ter]="!isNew"></td>
-                <td><input class="input" type="text" formControlName="unit" [readonly]="!isNew" [class.has-background-white-ter]="!isNew"></td>
-                <td><input class="input" type="text" formControlName="dosage" [readonly]="!isNew" [class.has-background-white-ter]="!isNew"></td>
+                <td><input class="input" type="text" formControlName="designation" (change)="getFingerprint()"
+                           [readonly]="!isNew" [class.has-background-white-ter]="!isNew"></td>
+                <td><input class="input" type="number" formControlName="amount" (change)="getFingerprint()"
+                           [readonly]="!isNew" [class.has-background-white-ter]="!isNew"></td>
+                <td><input class="input" type="text" formControlName="unit" (change)="getFingerprint()"
+                           [readonly]="!isNew" [class.has-background-white-ter]="!isNew"></td>
+                <td><input class="input" type="text" formControlName="dosage" (change)="getFingerprint()"
+                           [readonly]="!isNew" [class.has-background-white-ter]="!isNew"></td>
               </tr>
               </tbody>
             </table>
@@ -181,7 +189,7 @@
               <div class="field">
                 <label class="label">Fingerprint</label>
                 <div class="control">
-                  <textarea class="textarea has-background-white-ter" type="text" readonly>{{ getFingerprint() }}</textarea>
+                  <textarea class="textarea has-background-white-ter" type="text" readonly>{{ fingerprint }}</textarea>
                 </div>
               </div>
             </div>
@@ -190,7 +198,7 @@
               <div class="field">
                 <label class="label">Recipient signature</label>
                 <div class="control">
-                  <textarea class="textarea" type="text" formControlName="signatureRecipient" ></textarea>
+                  <textarea class="textarea" type="text" formControlName="signatureRecipient"></textarea>
                 </div>
               </div>
             </div>
@@ -199,7 +207,8 @@
               <div class="field">
                 <label class="label">Doctor signature</label>
                 <div class="control">
-                  <textarea class="textarea has-background-white-ter" type="text" formControlName="signatureIssuer" readonly></textarea>
+                  <textarea class="textarea has-background-white-ter" type="text" formControlName="signatureIssuer"
+                            readonly></textarea>
                 </div>
               </div>
             </div>

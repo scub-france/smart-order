@@ -14,6 +14,7 @@ export class OrderService {
   private SmartOrder = contract(artifact);
   public web3Interface: any;
   public ethersInterface: any;
+  public abiEncoder: any;
 
   constructor(private web3Service: Web3Service) {
     this.SmartOrder.setProvider(web3Service.web3.currentProvider);
@@ -22,7 +23,30 @@ export class OrderService {
       .then(instance => {
         this.web3Interface = instance;
         this.ethersInterface = new Ethers.Contract(instance.address, instance.abi, this.web3Service.wallet);
+        this.abiEncoder = new Ethers.utils.AbiCoder;
       });
+  }
+
+  private getIssuanceCommitment(order: Order): string {
+    let commitment: string = '';
+    if (this.web3Service.isAddress(order.recipient)) {
+      const sigFunction = this.web3Service.getFunctionSignature(this.web3Interface.abi, 'issueOrder');
+      const placeholder = this.web3Service.sign('0x5aeda56215b167893e80b4fe645ba6d5bab767de', 'dummy');
+      const prescriptionsDto = this.preparePrescriptions(order.prescriptions);
+      const encodedParams = this.abiEncoder.encode(
+        ['address', 'address', 'string[][]', 'uint', 'bytes', 'bytes'],
+        [order.issuer, order.recipient, prescriptionsDto, order.validity, placeholder, placeholder]).slice(2);
+      commitment = (sigFunction + encodedParams).slice(0, -448);
+    }
+    return commitment;
+  }
+
+  public getIssuanceFingerprint(order: Order): string {
+    const commitment = this.getIssuanceCommitment(order);
+    if (commitment !== '') {
+      return Ethers.utils.solidityKeccak256(['bytes'], [commitment]);
+    }
+    return commitment;
   }
 
   public findOrder(id: string): Observable<Order> {
@@ -51,12 +75,12 @@ export class OrderService {
   }
 
   public watchIssuance(filters: Object): Observable<any> {
-   return Observable.create(observer => {
-     const logIssuance = this.web3Interface.LogIssuance(filters, {fromBlock: 0, toBlock: 'latest'});
-     logIssuance.watch((err, data) => {
-       observer.next(data.args);
-     });
-   });
+    return Observable.create(observer => {
+      const logIssuance = this.web3Interface.LogIssuance(filters, {fromBlock: 0, toBlock: 'latest'});
+      logIssuance.watch((err, data) => {
+        observer.next(data.args);
+      });
+    });
   }
 
   public watchIssuanceQuery(filters: Object): Observable<any> {
