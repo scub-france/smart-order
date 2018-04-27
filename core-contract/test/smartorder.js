@@ -400,7 +400,7 @@ contract('SmartOrder', accounts => {
             ethersInterface.functions.getOrder(_orderId).then(order => {
 
                 // Preparing order issuance params
-                const commitment = ethers.utils.solidityKeccak256(['bytes32', 'uint8'], [_orderId, 2]);
+                const commitment = ethers.utils.solidityKeccak256(['bytes32', 'uint8'], [_orderId, order.version]);
                 const _sigPharmacist = web3.eth.sign(walletUnknown.address, commitment);
                 const _sigRecipient = web3.eth.sign(walletRecipient.address, commitment);
                 const _deltas = [2, 0];
