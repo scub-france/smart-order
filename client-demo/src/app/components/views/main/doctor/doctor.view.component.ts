@@ -21,6 +21,7 @@ export class DoctorViewComponent implements OnInit {
 
   public formGroup: FormGroup;
   public orders: Object = {};
+  public fingerprint: string;
 
   public constructor(private router: Router,
                      private web3Service: Web3Service,
@@ -38,29 +39,27 @@ export class DoctorViewComponent implements OnInit {
 
   public addItem(): void {
     const itemFormGroup: FormGroup = this.formBuilder.group({
-      designation: [null, Validators.required],
-      amount: [null, Validators.required],
-      unit: [null, Validators.required],
-      dosage: [null, Validators.required]
+      designation: ['', Validators.required],
+      amount: [0, Validators.required],
+      unit: ['', Validators.required],
+      dosage: ['', Validators.required]
     });
     (<FormArray>this.formGroup.get('prescriptions')).push(itemFormGroup);
+    this.getFingerprint();
   }
 
   public removeItem(index: number): void {
     (<FormArray>this.formGroup.get('prescriptions')).removeAt(index);
+    this.getFingerprint();
   }
 
-  public getFingerprint(): string {
-    const issuer : string = this.formGroup.get('issuer').value;
-    const recipient: string = this.formGroup.get('recipient').value;
-    if(this.web3Service.isAddress(issuer) && this.web3Service.isAddress(recipient))
-      return this.web3Service.keccak(['address', 'address'], [issuer, recipient]);
-    else return '';
+  public getFingerprint(): void {
+    this.fingerprint = this.orderService.getIssuanceFingerprint(this.formGroup.getRawValue());
   }
 
   // This function signs the current commitment and fills its form input
   public sign(): void {
-    this.formGroup.get('signatureIssuer').setValue(this.web3Service.sign(this.account, this.getFingerprint()));
+    this.formGroup.get('signatureIssuer').setValue(this.web3Service.sign(this.account, this.fingerprint));
   }
 
   public submit(): void {
@@ -99,11 +98,11 @@ export class DoctorViewComponent implements OnInit {
       issuer: [this.account, Validators.required],
       recipient: [null, Validators.required],
       timestamp: [null, Validators.required],
-      validity: [null, Validators.required],
+      validity: [0, Validators.required],
       signatureIssuer: [null, Validators.required],
       signatureRecipient: [null, Validators.required],
       prescriptions: this.formBuilder.array([]),
-      version: [null]
+      version: [0]
     });
   }
 
@@ -125,10 +124,12 @@ export class DoctorViewComponent implements OnInit {
           this.orders[order.id] = order;
 
           // Watch for issuance event
-          this.orderService.watchIssuance({issuer: this.account, queryId: order.id}).subscribe(event => {
-            this.orders[order.id].version = 2;
-            this.hideForm();
-          });
+          if(order.version === 1) {
+            this.orderService.watchIssuance({issuer: this.account, queryId: order.id}).subscribe(event => {
+              this.orders[order.id].version = 2;
+              this.hideForm();
+            });
+          }
         });
       });
     }, err => alert(err));

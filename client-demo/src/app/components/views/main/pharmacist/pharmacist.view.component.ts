@@ -70,7 +70,6 @@ export class PharmacistViewComponent implements OnInit {
     this.resetForm();
     this.formGroup.get('orderId').setValue(orderId);
     this.findOrder();
-    this.formGroup.get('orderId').setValue(null);
   }
 
   public hideForm(): void {
