@@ -190,6 +190,7 @@
                 <label class="label">Fingerprint</label>
                 <div class="control">
                   <textarea class="textarea has-background-white-ter" type="text" readonly>{{ fingerprint }}</textarea>
+                  <ngx-qrcode [qrc-element-type]="qrCodeType" [qrc-value] = "qrCodeValue"></ngx-qrcode>
                 </div>
               </div>
             </div>
