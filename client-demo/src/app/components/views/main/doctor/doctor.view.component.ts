@@ -11,9 +11,9 @@ import { Order } from '../../../../model/order.model';
   templateUrl: './doctor.view.component.html',
   styleUrls: ['./doctor.view.component.less'],
   encapsulation: ViewEncapsulation.None
-})
+}) 
 
-export class DoctorViewComponent implements OnInit {
+export class DoctorViewComponent implements OnInit { mi
 
   public account: string;
   public showForm: boolean = false;
@@ -22,6 +22,8 @@ export class DoctorViewComponent implements OnInit {
   public formGroup: FormGroup;
   public orders: Object = {};
   public fingerprint: string;
+  public qrCodeType: 'url' | 'canvas' | 'img' = 'url';
+  public qrCodeValue: string;
 
   public constructor(private router: Router,
                      private web3Service: Web3Service,
@@ -65,6 +67,8 @@ export class DoctorViewComponent implements OnInit {
    */
   public getFingerprint(): void {
     this.fingerprint = this.orderService.getIssuanceFingerprint(this.formGroup.getRawValue());
+    this.qrCodeValue = this.fingerprint;
+
   }
 
   /**

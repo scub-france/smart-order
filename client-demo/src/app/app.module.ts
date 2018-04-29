@@ -20,6 +20,8 @@ import { KeysPipe } from "./components/common/keys.pipe";
 import { HttpClientModule } from "@angular/common/http";
 import { DeliveryService } from "./services/delivery/delivery.service";
 import { MomentModule } from 'ngx-moment';
+import { NgxQRCodeModule } from 'ngx-qrcode2';
+
 
 @NgModule({
   imports: [
@@ -31,7 +33,8 @@ import { MomentModule } from 'ngx-moment';
     ClipboardModule,
     BrowserAnimationsModule,
     ToastrModule.forRoot(),
-    MomentModule
+    MomentModule,
+    NgxQRCodeModule
   ],
   declarations: [
     AppComponent,
