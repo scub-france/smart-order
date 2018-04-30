@@ -5,7 +5,7 @@ import { Order } from '../../model/order.model';
 import { Prescription } from '../../model/prescriptions.model';
 
 const Ethers = require('ethers');
-const artifact = require('../../../../../core-contract/build/contracts/SmartOrder.json');
+const artifact = require('../../../../../data/contracts/SmartOrder.json');
 const contract = require('truffle-contract');
 
 @Injectable()

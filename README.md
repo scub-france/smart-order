@@ -24,10 +24,6 @@ If you are not a developer and only want to see this demo in action, you may wan
 
 Using `docker-compose up`, you can launch a functional environment containing the deployed core-contract, ethereum bridge and the client-demo.
 
-Tests can be launched on the docker environment :
-1. Execute a shell inside the core-contract : `docker exec -it smart-order_core-contract_1 /bin/bash`
-2. launch truffle tests : `truffle test --network "testnet"`. the network is here referencing the `networks` in core-contract/truffle-config.js.
-
 ### Manual setup
 1. Fetch the codebase :  `git clone https://github.com/scub-france/smart-order`
 2. Compile & deploy contracts (cf. core-contract's [README](./core-contract/README.md)).

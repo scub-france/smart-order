@@ -1,4 +1,4 @@
 export const environment = {
-  production: true,
-  HttpProvider: "http://core-contract:8545"
+  production: false,
+  HttpProvider: 'http://localhost:8545'
 };
