@@ -15,4 +15,4 @@ module.exports = (deployer) => {
 	deployer.link(ECRecovery, SmartOrder);
 	deployer.link(SafeMath, SmartOrder);
 	deployer.deploy(SmartOrder);
-}
+};

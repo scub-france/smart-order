@@ -12,8 +12,11 @@
     "Pier-Jean Malandrino <pjmalandrino@gmail.com>"
   ],
   "devDependencies": {
-    "truffle": "^4.1.5",
-    "zeppelin-solidity": "1.8.0",
-    "ethers": "^3.0.13"
+    "ethers": "^3.0.13",
+    "truffle": "^4.1.7",
+    "zeppelin-solidity": "1.8.0"
+  },
+  "dependencies": {
+    "ig": "0.0.5"
   }
 }

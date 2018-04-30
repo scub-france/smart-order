@@ -1,31 +1,64 @@
 version: '3.2'
+networks:
+  core:
+    driver: bridge
+  bridge:
+    driver: bridge
+  client:
+    driver: bridge
+
 services:
+  ganache-cli:
+    build: ./ganache-cli
+    container_name: ganache-cli
+    restart: always
+    ports:
+      - "8545:8545"
+    networks:
+      - core
+      - bridge
+      - client
+
   core-contract:
     build: ./core-contract
+    container_name: core-contract
+    depends_on:
+      - ganache-cli
     volumes:
-      - ./core-contract:/usr/src/app
+      - ./data/contracts:/opt/workdir/data/contracts
     environment:
       - ETHEREUM_PROVIDER=http://localhost:8545
-    ports:
-      - "8546:8545"
+    command: ["/opt/workdir/startup/wait-for-ganache.sh",
+      "ganache-cli", "8545"]
+    networks:
+      - core
 
   ethereum-bridge:
     build: ./ethereum-bridge
-    volumes:
-      - ./ethereum-bridge/startup:/usr/src/startup
+    container_name: ethereum-bridge
+    depends_on:
+      - ganache-cli
+    restart : always
     environment:
       - ETHEREUM_BRIDGE_COMMIT=9c40a36
-    command: ["/usr/src/startup/wait-for-it.sh",
-     "core-contract", "8545",
-      "node /usr/src/app/ethereum-bridge/bridge -H core-contract:8545 -a 1"]
-    depends_on:
-      - "core-contract"
+    command: ["/opt/workdir/startup/wait-for-ganache.sh",
+      "ganache-cli", "8545",
+      "node /opt/workdir/app/ethereum-bridge/bridge -H ganache-cli:8545 -a 1"]
+    networks:
+      - bridge
 
   client-demo:
     build: ./client-demo
-    environment:
-      - ANGULAR_CLI_ENV=rec
+    container_name: client-demo
+    depends_on:
+      - core-contract
+    restart : always
     volumes:
-      - ./client-demo:/usr/src/app
+      - ./data/contracts:/opt/workdir/data/contracts
     ports:
       - "4200:4200"
+    command: ["/opt/workdir/startup/wait-for-it.sh",
+     "ganache-cli", "8545",
+     "npm", "run", "start:rec"]
+    networks:
+      - client
