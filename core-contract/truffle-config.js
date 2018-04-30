@@ -1,5 +1,5 @@
 module.exports = {
-	// contracts_build_directory: "../client-demo/src/",
+	contracts_build_directory: "../data/contracts",
 	networks: {
 		devnet: {
 			host: 'localhost',
@@ -7,7 +7,7 @@ module.exports = {
 			network_id: '*'
 		},
 		testnet: {
-			host: 'localhost',
+			host: 'ganache-cli',
 			port: 8545,
 			network_id: '*'
 			// optional config values:

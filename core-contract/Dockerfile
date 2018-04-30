@@ -1,4 +1,9 @@
-FROM node
-WORKDIR /usr/src/app
-RUN npm i -g truffle && npm i -g ganache-cli && npm i
-ENTRYPOINT ganache-cli -m "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+FROM node:carbon
+ADD . /opt/workdir/app
+WORKDIR /opt/workdir/app
+RUN apt-get update \
+ && apt-get install netcat -y
+RUN npm i -g truffle && npm i
+COPY ./startup/wait-for-ganache.sh /opt/workdir/startup/
+RUN chmod +x /opt/workdir/startup/wait-for-ganache.sh
+ENTRYPOINT truffle migrate --network testnet

@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Web3Service } from '../web3/web3.service';
-import { Delivery } from '../../model/delivery.model';
+import {  Delivery } from '../../model/delivery.model';
 
 const Ethers = require('ethers');
-const artifact = require('../../../../../core-contract/build/contracts/SmartOrder.json');
+const artifact = require('../../../../../data/contracts/SmartOrder.json');
 const contract = require('truffle-contract');
 
 @Injectable()
