@@ -4,13 +4,9 @@
 
 set -e
 
-host="$1"
-shift
-port="$1"
-shift
 cmd="$@"
 
-until $([ -e /opt/workdir/data/contracts/SmartOrder.json ]); do
+until $([ -e /opt/workdir/core-contract/build/contracts/SmartOrder.json ]); do
   >&2 echo "Contracts are unavailable - sleeping"
   sleep 1
 done

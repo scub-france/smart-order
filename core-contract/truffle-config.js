@@ -1,5 +1,5 @@
 module.exports = {
-	contracts_build_directory: "../data/contracts",
+	// contracts_build_directory: "../../data/contracts",
 	networks: {
 		devnet: {
 			host: 'localhost',
