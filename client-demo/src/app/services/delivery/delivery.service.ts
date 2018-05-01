@@ -4,7 +4,7 @@ import { Web3Service } from '../web3/web3.service';
 import {  Delivery } from '../../model/delivery.model';
 
 const Ethers = require('ethers');
-const artifact = require('../../../../../data/contracts/SmartOrder.json');
+const artifact = require('../../../../../core-contract/build/contracts/SmartOrder.json');
 const contract = require('truffle-contract');
 
 @Injectable()
