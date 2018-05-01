@@ -6,4 +6,4 @@ RUN apt-get update \
 RUN npm i -g truffle && npm i
 COPY ./startup/wait-for-ganache.sh /opt/workdir/startup/
 RUN chmod +x /opt/workdir/startup/wait-for-ganache.sh
-ENTRYPOINT truffle migrate --network testnet
+ENTRYPOINT truffle migrate --reset --network testnet
