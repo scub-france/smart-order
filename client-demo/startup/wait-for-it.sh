@@ -6,6 +6,7 @@ set -e
 
 cmd="$@"
 
+rm -f /opt/workdir/core-contract/build/contracts/*.json
 until $([ -e /opt/workdir/core-contract/build/contracts/SmartOrder.json ]); do
   >&2 echo "Contracts are unavailable - sleeping"
   sleep 1
