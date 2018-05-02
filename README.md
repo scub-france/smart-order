@@ -2,8 +2,6 @@
 
 This project aims to showcase the capabilities of solidity as a solution to issue and manage medical orders.
 
-The documentation can be found [here](https://github.com/scub-france/smart-order/wiki).
-
 ## Dependencies
 ### Truffle Suite
 [Truffle](https://github.com/trufflesuite/truffle) is a development environment, testing framework and asset pipeline for Ethereum, aiming to make life as an Ethereum developer easier.
@@ -22,12 +20,13 @@ You're also going to need a working copy of angular-cli (aka. ng) installed in y
 ### Docker
 If you are not a developer and only want to see this demo in action, you may want to use the docker images.
 
-Using `docker-compose up`, you can launch a functional environment containing the deployed core-contract, ethereum bridge and the client-demo.
+Using `docker-compose up`, you can launch a functional environment containing the deployed core-contract, ethereum bridge, ganache client and the client-demo.
 
 ### Manual setup
 1. Fetch the codebase :  `git clone https://github.com/scub-france/smart-order`
 2. Compile & deploy contracts (cf. core-contract's [README](./core-contract/README.md)).
-3. Run the oraclize connector (cf. Ethereum Bridge) 
+3. Run the oraclize connector (cf. Ethereum Bridge)
+4. Run the client-demo (cf. client-demo's [README](./client-demo/README.md)).
 
 ## smart-order/core-contract
 This module contains all the files related to the smart contracts.
