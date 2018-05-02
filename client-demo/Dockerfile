@@ -1,6 +1,4 @@
 FROM node:carbon
-RUN apt-get update \
- && apt-get install netcat -y
 RUN npm -g config set user root
 COPY package*.json /tmp/
 RUN cd /tmp && npm install

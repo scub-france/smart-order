@@ -11,9 +11,9 @@ import { Order } from '../../../../model/order.model';
   templateUrl: './doctor.view.component.html',
   styleUrls: ['./doctor.view.component.less'],
   encapsulation: ViewEncapsulation.None
-}) 
+})
 
-export class DoctorViewComponent implements OnInit { mi
+export class DoctorViewComponent implements OnInit {
 
   public account: string;
   public showForm: boolean = false;
