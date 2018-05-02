@@ -7,6 +7,9 @@ networks:
   client:
     driver: bridge
 
+volumes:
+  data-contracts:
+
 services:
   ganache-cli:
     build: ./ganache-cli
@@ -25,7 +28,9 @@ services:
     depends_on:
       - ganache-cli
     volumes:
-      - ./core-contract/build/contracts:/opt/workdir/app/build/contracts
+      - type: volume
+        source: data-contracts
+        target: /opt/workdir/app/build/contracts
     environment:
       - ETHEREUM_PROVIDER=http://localhost:8545
     command: ["/opt/workdir/startup/wait-for-ganache.sh",
@@ -54,7 +59,9 @@ services:
       - core-contract
     restart : always
     volumes:
-      - ./core-contract/build/contracts:/opt/workdir/core-contract/build/contracts
+      - type: volume
+        source: data-contracts
+        target: /opt/workdir/core-contract/build/contracts
     ports:
       - "4200:4200"
     command: ["/opt/workdir/startup/wait-for-it.sh",
