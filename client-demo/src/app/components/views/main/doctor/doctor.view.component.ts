@@ -84,11 +84,11 @@ export class DoctorViewComponent implements OnInit {
   public submit(): void {
     let order: Order = this.formGroup.getRawValue();
     this.orderService.issueOrder(order).subscribe(res => {
-      this.toastrService.info('Transaction broadcasted, order issuance is being processed', 'Processing');
+      this.toastrService.info('Transaction émise sur le réseau', 'Traitement');
       this.hideForm();
       this.resetForm();
     }, err => {
-      this.toastrService.error('Transaction rejected by EVM', 'Error');
+      this.toastrService.error('Transaction rejetée par le système', 'Erreur');
     });
   }
 

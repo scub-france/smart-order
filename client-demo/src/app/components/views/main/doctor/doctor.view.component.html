@@ -2,7 +2,7 @@
   <section class="hero is-info is-bold">
     <div class="hero-body">
       <div class="container">
-        <h1 class="title">Doctor</h1>
+        <h1 class="title">Médecin</h1>
         <div class="field">
           <div class="control">
             <div class="select is-info ">
@@ -22,12 +22,12 @@
       <div class="level">
         <div class="level-left">
           <div class="level-item">
-            <h1 class="title">My Orders</h1>
+            <h1 class="title">Mes ordonnances</h1>
           </div>
         </div>
         <div class="level-right">
           <div class="level-item" *ngIf="!isNew">
-            <button class="button is-info" (click)="new()">New Order</button>
+            <button class="button is-info" (click)="new()">Créer ordonnance</button>
           </div>
         </div>
       </div>
@@ -37,22 +37,20 @@
                  style="table-layout: fixed; word-wrap:break-word;">
             <thead class="has-background-white-ter">
             <tr>
-              <th></th>
-              <th>Datetime</th>
-              <th>Recipient</th>
-              <th>Identifier</th>
-              <th>Status</th>
+              <th>Identifiant</th>
+              <th>Date création</th>
+              <th>Patient</th>
+              <th>Statut</th>
             </tr>
             </thead>
             <tbody>
             <tr *ngFor="let id of orders | keys">
-              <td><a class="delete"></a>TODO</td>
+              <td><a (click)="show(id)">{{ id }}</a></td>
               <td>{{ orders[id].timestamp }}</td>
               <td>{{ orders[id].recipient }}</td>
-              <td><a (click)="show(id)">{{ id }}</a></td>
-              <td *ngIf="orders[id].version === 1">Processing</td>
-              <td *ngIf="orders[id].version === 2">Issued</td>
-              <td *ngIf="orders[id].version > 2">Delivered</td>
+              <td *ngIf="orders[id].version === 1">En cours de traitement</td>
+              <td *ngIf="orders[id].version === 2">Traitée</td>
+              <td *ngIf="orders[id].version > 2">Delivrée</td>
             </tr>
             </tbody>
           </table>
@@ -65,7 +63,7 @@
   <section class="section" *ngIf="showForm">
     <form [formGroup]="formGroup">
       <div class="container">
-        <h1 class="title">{{ isNew ? "New Order" : "Order Details" }}</h1>
+        <h1 class="title">{{ isNew ? "Nouvelle ordonnance" : "Détail de l'ordonnance" }}</h1>
         <div class="box">
 
           <!-- TOP -->
@@ -75,7 +73,7 @@
               <!-- ID -->
               <div class="field is-horizontal" *ngIf="formGroup.get('id').value != null">
                 <div class="field-label">
-                  <label class="label">Id</label>
+                  <label class="label">Identifiant</label>
                 </div>
                 <div class="field-body">
                   <div class="field has-addons">
@@ -83,7 +81,7 @@
                       <input class="input has-background-white-ter" type="text" readonly formControlName="id">
                     </p>
                     <div class="control">
-                      <div class="button" ngxClipboard [cbContent]="formGroup.get('id').value">Copy</div>
+                      <div class="button" ngxClipboard [cbContent]="formGroup.get('id').value">Copier</div>
                     </div>
                   </div>
                 </div>
@@ -92,7 +90,7 @@
               <!-- ISSUER -->
               <div class="field is-horizontal">
                 <div class="field-label">
-                  <label class="label">Issuer</label>
+                  <label class="label">Médecin</label>
                 </div>
                 <div class="field-body">
                   <div class="field">
@@ -105,9 +103,9 @@
               </div>
 
               <!-- TIMESTAMP -->
-              <div class="field is-horizontal">
+              <div class="field is-horizontal" *ngIf="!isNew">
                 <div class="field-label">
-                  <label class="label">On the</label>
+                  <label class="label">Fait le </label>
                 </div>
                 <div class="field-body">
                   <div class="field">
@@ -123,7 +121,7 @@
             <div class="column is-one-third is-offset-one-third">
               <div class="field is-horizontal">
                 <div class="field-label">
-                  <label class="label is-small">Recipient</label>
+                  <label class="label is-small">Patient</label>
                 </div>
                 <div class="field-body">
                   <div class="field">
@@ -138,7 +136,7 @@
               <!-- VALIDITY -->
               <div class="field is-horizontal">
                 <div class="field-label">
-                  <label class="label is-small">Validity</label>
+                  <label class="label is-small">Validité</label>
                 </div>
                 <div class="field-body">
                   <div class="field">
@@ -160,8 +158,8 @@
               <tr>
                 <th *ngIf="isNew"></th>
                 <th>Molecule</th>
-                <th>Quantity</th>
-                <th>Unit</th>
+                <th>Quantité</th>
+                <th>Unité</th>
                 <th>Dosage</th>
               </tr>
               </thead>
@@ -179,7 +177,7 @@
               </tr>
               </tbody>
             </table>
-            <button class="button" (click)="addItem()" *ngIf="isNew">Add item</button>
+            <button class="button" (click)="addItem()" *ngIf="isNew">Ajouter un élément</button>
           </div>
           <br>
 
@@ -187,7 +185,7 @@
           <div class="columns" *ngIf="isNew">
             <div class="column is-one-quarter">
               <div class="field">
-                <label class="label">Fingerprint</label>
+                <label class="label">Empreinte du document</label>
                 <div class="control">
                   <textarea class="textarea has-background-white-ter" type="text" readonly>{{ fingerprint }}</textarea>
                   <ngx-qrcode [qrc-element-type]="qrCodeType" [qrc-value] = "qrCodeValue"></ngx-qrcode>
@@ -197,7 +195,7 @@
 
             <div class="column is-one-quarter is-offset-one-quarter">
               <div class="field">
-                <label class="label">Recipient signature</label>
+                <label class="label">Signature du patient</label>
                 <div class="control">
                   <textarea class="textarea" type="text" formControlName="signatureRecipient"></textarea>
                 </div>
@@ -206,7 +204,7 @@
 
             <div class="column is-one-quarter">
               <div class="field">
-                <label class="label">Doctor signature</label>
+                <label class="label">Signature du médecin</label>
                 <div class="control">
                   <textarea class="textarea has-background-white-ter" type="text" formControlName="signatureIssuer"
                             readonly></textarea>
@@ -230,10 +228,10 @@
               <div class="level-item">
                 <div class="field is-grouped">
                   <p class="control">
-                    <button class="button is-danger" (click)="hideForm()">Close</button>
+                    <button class="button is-danger" (click)="hideForm()">Fermer</button>
                   </p>
                   <p class="control" *ngIf="isNew">
-                    <button class="button is-info" (click)="submit()">Submit</button>
+                    <button class="button is-info" (click)="submit()">Valider</button>
                   </p>
                 </div>
               </div>

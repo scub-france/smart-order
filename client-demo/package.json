@@ -24,6 +24,7 @@
     "bulma": "^0.7.0",
     "core-js": "^2.5.5",
     "ethers": "^3.0.15",
+    "moment": "^2.22.2",
     "ngx-clipboard": "^10.0.0",
     "ngx-moment": "^2.0.0-rc.0",
     "ngx-qrcode2": "^0.1.0",

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { environment } from '../../../environments/environment';
+import * as moment from 'moment';
 
 const Web3 = require('web3');
 const Ethers = require('ethers');
@@ -63,7 +64,8 @@ export class Web3Service {
    * @param {string[]} types
    * @param {any[]} values
    * @returns {string}
-   */
+   */ls
+  cd
   public keccak(types: string[], values: any[]): string {
     return Ethers.utils.solidityKeccak256(types, values);
   }
@@ -75,7 +77,7 @@ export class Web3Service {
    */
   public getBlockTimestamp(height: number): Date {
     const timestamp: number = this.web3.eth.getBlock(height).timestamp;
-    return new Date(timestamp);
+    return moment.unix(timestamp).toDate();
   }
 
   /**

@@ -2,7 +2,7 @@
   <section class="hero is-primary is-bold">
     <div class="hero-body">
       <div class="container">
-        <h1 class="title">Pharmacist</h1>
+        <h1 class="title">Pharmacien</h1>
         <div class="field">
           <div class="control">
             <div class="select is-primary ">
@@ -25,7 +25,7 @@
         <div class="level">
           <div class="level-left">
             <div class="level-item">
-              <h1 class="title">Deliveries</h1>
+              <h1 class="title">Délivrances</h1>
             </div>
           </div>
           <div class="level-right">
@@ -47,20 +47,19 @@
                    style="table-layout: fixed; word-wrap:break-word;">
               <thead class="has-background-white-ter">
               <tr>
-                <th>Datetime</th>
-                <th>Order</th>
-                <th>Recipient</th>
-                <th>Delivery</th>
-                <th>Status</th>
+                <th>Identifiant</th>
+                <th>Date création</th>
+                <th>Patient</th>
+                <th>Statut</th>
               </tr>
               </thead>
               <tbody>
               <tr *ngFor="let id of deliveries | keys">
-                <td>{{ deliveries[id].timestamp }}</td>
                 <td><a (click)="show(deliveries[id].orderId)">{{ deliveries[id].orderId }}</a></td>
-                <td>{{ getRecipient(deliveries[id].orderId) }}</td>
+                <td>{{ deliveries[id].timestamp }}</td>
+                <!--<td>{{ getRecipient(deliveries[id].orderId) }}</td>-->
                 <td>{{ id }}</td>
-                <td>{{ deliveries[id].pending ? "Processing" : "Delivered" }}</td>
+                <td>{{ deliveries[id].pending ? "En cours de traitement " : "Traitée" }}</td>
               </tr>
               </tbody>
             </table>
@@ -82,7 +81,7 @@
               <!-- ID -->
               <div class="field is-horizontal">
                 <div class="field-label">
-                  <label class="label">Id</label>
+                  <label class="label">Identifiant</label>
                 </div>
                 <div class="field-body">
                   <div class="field">

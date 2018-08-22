@@ -36,7 +36,7 @@ export class OrderService {
     let commitment: string = '';
     if (this.web3Service.isAddress(order.recipient)) {
       const sigFunction = this.web3Service.getFunctionSignature(this.web3Interface.abi, 'issueOrder');
-      const placeholder = this.web3Service.sign('0x5aeda56215b167893e80b4fe645ba6d5bab767de', 'dummy');
+      const placeholder = this.web3Service.sign(this.web3Service.web3.toHex("0x5aeda56215b167893e80b4fe645ba6d5bab767de"), 'sdfdfgsdfgsdfgsdfg');
       const prescriptionsDto = this.preparePrescriptions(order.prescriptions);
       const encodedParams = this.abiEncoder.encode(
         ['address', 'address', 'string[][]', 'uint', 'bytes', 'bytes'],
