@@ -14,7 +14,6 @@ services:
   ganache-cli:
     build: ./ganache-cli
     container_name: ganache-cli
-    restart: always
     ports:
       - "8545:8545"
     networks:
@@ -43,7 +42,6 @@ services:
     container_name: ethereum-bridge
     depends_on:
       - ganache-cli
-    restart : always
     environment:
       - ETHEREUM_BRIDGE_COMMIT=9c40a36
     command: ["/opt/workdir/startup/wait-for-ganache.sh",
@@ -57,7 +55,6 @@ services:
     container_name: client-demo
     depends_on:
       - core-contract
-    restart : always
     volumes:
       - type: volume
         source: data-contracts
