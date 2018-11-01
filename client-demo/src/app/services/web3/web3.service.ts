@@ -75,9 +75,9 @@ export class Web3Service {
    * @param {number} height
    * @returns {Date}
    */
-  public getBlockTimestamp(height: number): Date {
+  public getBlockTimestamp(height: number): string {
     const timestamp: number = this.web3.eth.getBlock(height).timestamp;
-    return moment.unix(timestamp).toDate();
+    return moment.unix(timestamp).format('YYYY-MM-DD');;
   }
 
   /**

@@ -5,6 +5,7 @@ import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { OrderService } from '../../../../services/order/order.service';
 import { Order } from '../../../../model/order.model';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-doctor-view',
@@ -69,6 +70,10 @@ export class DoctorViewComponent implements OnInit {
     this.fingerprint = this.orderService.getIssuanceFingerprint(this.formGroup.getRawValue());
     this.qrCodeValue = this.fingerprint;
 
+  }
+
+  public getFormattedDate(timestamp: number): string {
+    return moment.unix(timestamp).format('YYYY-MM-DD');
   }
 
   /**

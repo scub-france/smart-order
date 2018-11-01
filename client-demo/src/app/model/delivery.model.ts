@@ -11,7 +11,7 @@ export class Delivery {
   /**
    * Angular "extended" properties.
    */
-  public timestamp: Date;
+  public timestamp: string;
   public fingerprint: string;
   public signaturePharmacist: string;
   public signatureRecipient: string;
