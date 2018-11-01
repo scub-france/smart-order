@@ -19,6 +19,8 @@ export class PharmacistViewComponent implements OnInit {
 
   public account: string;
   public showForm: boolean = false;
+  public qrCodeType: 'url' | 'canvas' | 'img' = 'url';
+  public qrCodeValue: string;
 
   public formGroup: FormGroup;
   public order: Order;
@@ -43,7 +45,9 @@ export class PharmacistViewComponent implements OnInit {
    * Method used to calculate current delivery fingerprint.
    */
   public getFingerprint(): string {
-    return this.web3Service.keccak(['bytes32', 'uint8'], [this.order.id, this.order.version]);
+    const fingerPrint: string = this.web3Service.keccak(['bytes32', 'uint8'], [this.order.id, this.order.version]);
+    this.qrCodeValue = fingerPrint;
+    return fingerPrint;
   }
 
   /**
