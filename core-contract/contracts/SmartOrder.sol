@@ -80,8 +80,7 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
         require(ECRecovery.recover(fingerprint, _sigRecipient) == _recipient);
 
         // Send authentication request to Oracle
-        bytes32 queryId = oraclize_query(10, "URL", "https://heavy-robin-10.localtunnel.me/v1/validate/doctor", toAsciiString(_issuer));
-//        bytes32 queryId = oraclize_query(10, "URL", "http://92.154.91.195:8083/v1/validate/doctor", toAsciiString(_issuer));
+        bytes32 queryId = oraclize_query(10, "URL", "http://92.154.91.195:8083/v1/validate/doctor", toAsciiString(_issuer));
 
         // Storing Order
         // Version is set to 1 to distinguish from empty in orders mapping.
@@ -126,8 +125,7 @@ contract SmartOrder is Ownable, Pausable, usingOraclize {
         // Send authentication request to Oracle
         // FIXME : Temp with a localhost because ip is shut down for the moment..
         // FIXME /!\ Remember localhost are not accessible by ethereum-bridge, then use localtunnel to expose on a fake url.
-        bytes32 queryId = oraclize_query(10, "URL", "https://heavy-robin-10.localtunnel.me/v1/validate/pharmacist", toAsciiString(_adrPharmacist));
-//        bytes32 queryId = oraclize_query(10, "URL", "http://92.154.91.195:8083/v1/validate/pharmacist", toAsciiString(_adrPharmacist));
+        bytes32 queryId = oraclize_query(10, "URL", "http://92.154.91.195:8083/v1/validate/pharmacist", toAsciiString(_adrPharmacist));
 
         // Storing delivery
         deliveries[queryId].orderId = _orderId;

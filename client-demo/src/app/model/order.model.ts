@@ -19,5 +19,5 @@ export class Order {
   public fingerprint: string;
   public signatureIssuer: string;
   public signatureRecipient: string;
-  public timestamp: Date;
+  public timestamp: string;
 }
