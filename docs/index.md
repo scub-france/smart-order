@@ -29,9 +29,10 @@ En France comme dans beaucoup d’autres pays, les prescriptions médicamenteuse
 
   * La détection des ordonnances falsifiées est souvent fonction de l’appréciation du pharmacien et le refus de prescription est généralement motivé par des détails tels que l’aspect de l’ordonnance, le style rédactionnel ou encore le comportement du patient. Ces perceptions sont fondamentalement subjectives, et leur exercice représente une contrainte récurrente pour les praticiens. Si la majorité des signalements concerne les ordonnances manuscrites, les ordonnances numériques sont aussi concernées par les abus alors que la fraude y est par nature plus difficile à détecter. Plusieurs stratégies peuvent être employées pour tenter d’abuser du système :
   * un patient mal intentionné peut dupliquer une ordonnance et la présenter dans des pharmacies différentes. Il sera alors impossible pour un pharmacien de savoir si cette ordonnance a déjà été utilisée [2](https://documentation.ehesp.fr/memoires/2014/phisp/pons.pdf), il est possible de récupérer l’ensemble des détails sur l'ordonnance et de changer la prescription en imitant l’écriture du médecin,
-  * la fraude peut également provenir des professionnels de santé [3](https://www.ameli.fr/fileadmin/user_upload/documents/cp23022006.pdf). Les transporteurs sanitaires, médecins, pharmaciens ou laboratoires, etc. sont parfois directement impliqués dans la falsification des ordonnances.  
-  
-### Synthèse
+  * la fraude peut également provenir des professionnels de santé [3](https://www.ameli.fr/fileadmin/user_upload/documents/cp23022006.pdf). Les transporteurs sanitaires, médecins, pharmaciens ou laboratoires, etc. sont parfois directement impliqués dans la falsification des ordonnances. 
+
+
+### Synthèse
 La prescription comme la délivrance de médicaments sont des actes incontournables de l’activité médicale mais ils sont pourtant complexes à appréhender. De nombreux acteurs sont impliqués dans le processus et ils peuvent avoir des avis ou des intérêts divergents. 
 
 Ces actes sont des marqueurs du parcours de soin et présentent en tant que tel des enjeux considérables en terme de traçabilité. La fraude, ainsi que les erreurs de prescription, de délivrance ou de dispensation sont lourdes de conséquences humaines et financières. Une démarche de sécurisation dans le domaine est indispensable.
@@ -54,11 +55,11 @@ Les transactions étant publiques, chaque action accomplie par le programme est 
 ## Le prototype Smart Order 
 Dans le cadre de notre preuve de concept, nous avons choisi d’utiliser une blockchain privée appelée Ethereum. Les opérations effectuées par le programme et les informations affichées proviennent exclusivement de cette blockchain. Les interfaces utilisateur que nous avons développées permettent d’itérer sur les principales étapes du cycle de vie d’une ordonnance. Ainsi le prototype permet à un docteur de rédiger et d’émettre une ordonnance puis à un pharmacien de la consulter et d’en délivrer des éléments. 
 
+
 ### Interface de prescription
 Le bandeau bleu indique le titre de l’utilisateur (ici “médecin”) et son identité numérique [ref]. Cette identité sera désignée comme émettrice de l’ordonnance. La première partie de l’écran contient un tableau [ref] qui regroupe les informations et les identifiants des ordonnances déjà émises. La seconde partie [ref] permet alternativement la rédaction ou la consultation d’une ordonnance.
 
 ![Ordonnances médecin avec la blockchain](https://github.com/scub-france/smart-order/blob/master/docs/assets/images/blockchain-mes-ordonnances-medecin.png?raw=true)
-
 
 #### Rédaction d’une ordonnance
 Pour qu’une nouvelle ordonnance soit complète, il est nécessaire que les informations suivantes soient renseignées :
@@ -73,7 +74,7 @@ L’action de signature du médecin est matérialisée par un bouton “Signer�
 
 Lorsque tous ces éléments sont renseignés, le prescripteur peut alors soumettre la nouvelle ordonnance qui sera automatiquement validée puis inscrite dans la blockchain. L’empreinte du document servira d’identifiant, il permettra au patient de présenter sa prescription à des tiers tels que médecins et pharmaciens.
 
-### Interface de dispensation
+### Interface de dispensation
 Cet écran est à destination du pharmacien et sa conception est globalement similaire à celle du médecin. Le bandeau vert indique que l’utilisateur est un pharmacien et affiche aussi son identité numérique. La première partie de l’interface [ref] liste les délivrances faites par ce dernier tandis que la seconde partie [ref] lui permet de consulter en détail l’état d’une ordonnance. 
 
 ![Ordonnances pharmacien avec la blockchain](https://github.com/scub-france/smart-order/blob/master/docs/assets/images/blockchain-mes-ordonnances-pharmacien.png?raw=true)
@@ -110,11 +111,14 @@ Chaque signature étant propre à un utilisateur et à un acte donné,  Il est i
 
 ## Et ensuite ?
 Si le prototype démontre bien la faisabilité du concept, le travail de réflexion qui a été engagé va encore plus loin et des développements restent à entreprendre. Le lecteur trouvera dans cette section des exemples de thématiques que nous souhaiterions à présent explorer.
+
 ### Interopérabilité
 Smart Order utilise des protocoles standards de la communication web mais aussi des outils propres à la technologie des smart-contracts. Pour faciliter l’intégration de notre solution à une infrastructure médicale existante, il faudrait permettre l’échange d’informations via la norme FIHR. L’intégration d’un tel standard permettrait par exemple de faire fonctionner notre solution avec des logiciels d’aide à la prescription, ou même des armoires à pharmacies connectées.
+
 ### Gestion des identités
 Toutes les données enregistrées sur la blockchain sont anonymisées et seuls les identifiants numériques sont utilisés. Dans le cadre du prototype, chaque acteur utilise un identifiant constant pour revendiquer son identité. Cependant, ce comportement n’est pas adapté à une situation réaliste car il implique que toute personne ayant accès à la blockchain puisse regrouper des ordonnances distinctes en observant les identifiants utilisés. 
 
 Cette problématique pourrait être résolue grâce à des techniques cryptographiques dites de “dérivation”, qui permettent de fournir aux acteurs des identifiants à usage unique, à partir d’un mot de passe personnel. Cette nouvelle mécanique permettrait également d’implémenter des fonctionnalités avancées de partage d’historique. Elle pourrait par exemple permettre à un patient de partager automatiquement avec un tiers de confiance toutes ses ordonnances en relation avec un épisode médical particulier, ou encore émises après une date donnée.
+
 ### Etudes complémentaires
 Le socle technologique de Smart Order et les choix techniques qui ont été pris ont un impact important sur les caractéristiques de la solution. Nous avons choisi d’utiliser une blockchain Ethereum car il s’agit de la technologie de smart-contract la plus mature et la plus adéquate au prototypage. Il existe des alternatives à Ethereum mais elles présentent des caractéristiques différentes en termes de performance, de sécurité et de coûts qu’il faudrait analyser. Dans une démarche d’amélioration du prototype, il sera nécessaire de réaliser une série d’études complémentaires pour éprouver la fiabilité de la solution et quantifier les coûts d’une mise en production.
