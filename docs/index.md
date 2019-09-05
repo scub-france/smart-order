@@ -1,7 +1,9 @@
 # Smart order
 **Blockchain et santé: preuve de concept pour des ordonnances distribuées.**
 
-*Auteurs : Jules Lainé, Louis Torbay et Pier-Jean Malandrino - ( [Scub](https://www.scub.net/) ) .*
+*Auteurs : Jules Lainé, Louis Torbay et Pier-Jean Malandrino - ( [Scub | ESN spécialiste digital des métiers de l’assurance](https://www.scub.net/) ) .*
+
+Vous trouverez les sources et les instructions pour mettre en place cette plarforme à [cette adresse](https://github.com/scub-france/smart-order).
 
 ## Les enjeux de la prescription
 
